@@ -20,7 +20,7 @@ export default function Home() {
           <Tooltip>
             <TooltipTrigger>
               <a
-                href="https://www.linkedin.com/in/linda-armesto/"
+                href="https://www.linkedin.com/in/lindamarcela/"
                 target="_blank"
                 rel="noopener noreferrer"
               >
@@ -63,9 +63,15 @@ export default function Home() {
                     <WhatsApp />
                   </Button>
                 </a>
-                <Button variant="primary" size="icon">
-                  <Gmail />
-                </Button>
+                <a
+                  href="mailto:lindamarcela1408@gmail.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Button variant="primary" size="icon">
+                    <Gmail />
+                  </Button>
+                </a>
                 <span className="text-xl font-bold mx-8 my-auto text-primary">
                   Contactar
                 </span>
