@@ -1,36 +1,65 @@
 import { Gmail, LinkedIn, WhatsApp } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { services } from "@/lib/constants";
+import { Award } from "lucide-react";
 
 export default function Home() {
   return (
     <div className="grid min-h-screen font-[family-name:var(--font-sarala)]">
-      <main className="flex flex-col flex-1 items-center sm:items-start max-w-[1128px] w-full mx-auto">
+      <main className="flex flex-col flex-1 items-center sm:items-start max-w-[1100px] w-full mx-auto px-7 overflow-hidden">
         {/* Header */}
         <header className="flex items-center justify-between w-full my-6 px-20">
           <h1 className="text-xl font-base text-primary">Linda Armesto</h1>
-          <Button variant="outline" size="icon">
-            <LinkedIn />
-          </Button>
+
+          <Tooltip>
+            <TooltipTrigger>
+              <a
+                href="https://www.linkedin.com/in/linda-armesto/"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Button variant="outline" size="icon">
+                  <LinkedIn />
+                </Button>
+              </a>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Ver @LindaArmesto</p>
+            </TooltipContent>
+          </Tooltip>
         </header>
 
-        <div className="flex-1 rounded-t-[3.5rem] border-t border-x border-border pt-25 px-20 w-full shadow-[0_-4px_20px_0_rgba(255,255,255,0.52)]">
+        <div className="flex-1 rounded-t-[3.5rem] border-t border-x border-border pt-14 px-20 w-full shadow-[0_-4px_20px_0_rgba(161,143,227,0.12)] relative">
+          {/* Gradient */}
+          <div className="bg-gradient-to-b from-transparent to-background h-full w-screen absolute bottom-0 -left-30 z-10" />
+
           {/* Hero */}
-          <section>
-            <div className="mb-23">
+          <section className="flex justify-between relative z-20">
+            <div>
               <h2 className="text-[4rem] font-bold mb-0">
                 Abogada <span className="text-primary">Tech</span>
               </h2>
-              <p className="text-xl mb-10 text-muted-foreground">
+              <p className="text-xl mb-8 text-muted-foreground">
                 Asesoría y representación legal estratégica
                 <br />
                 para el mundo tech
               </p>
               <div className="flex p-2.5 rounded-full border w-fit">
-                <Button variant="primary" size="icon" className="mr-2.5">
-                  <WhatsApp />
-                </Button>
+                <a
+                  href="https://wa.me/573136037029"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Button variant="primary" size="icon" className="mr-2.5">
+                    <WhatsApp />
+                  </Button>
+                </a>
                 <Button variant="primary" size="icon">
                   <Gmail />
                 </Button>
@@ -39,10 +68,53 @@ export default function Home() {
                 </span>
               </div>
             </div>
+
+            <div>
+              <img
+                src="/profile-photo.png"
+                alt="Foto de perfil"
+                width={280}
+                height={280}
+                className="mask-b-from-50% mask-radial-[50%_90%] mask-radial-from-80% animate-in  fade-in fade-out duration-300"
+              />
+            </div>
+          </section>
+
+          {/* Experience */}
+          <section className="relative z-20 py-8">
+            <ul className="flex gap-6">
+              <li className="flex items-center gap-2">
+                <div className="h-10 w-10 bg-border rounded-full relative overflow-hidden grid place-items-center">
+                  <div className="h-6 w-6 bg-radial from-primary/50 to-border rounded-full absolute -bottom-2.5 left-1/2 -translate-x-1/2" />
+                  <Award className="text-muted-foreground z-20" />
+                </div>
+                <p>
+                  <span className="font-bold">2</span> Años de experiencia
+                </p>
+              </li>
+              <li className="flex items-center gap-2">
+                <div className="h-10 w-10 bg-border rounded-full relative overflow-hidden grid place-items-center">
+                  <div className="h-6 w-6 bg-radial from-primary/50 to-border rounded-full absolute -bottom-2.5 left-1/2 -translate-x-1/2" />
+                  <Award className="text-muted-foreground z-20" />
+                </div>
+                <p>
+                  <span className="font-bold">25</span> Casos resueltos
+                </p>
+              </li>
+              <li className="flex items-center gap-2">
+                <div className="h-10 w-10 bg-border rounded-full relative overflow-hidden grid place-items-center">
+                  <div className="h-6 w-6 bg-radial from-primary/50 to-border rounded-full absolute -bottom-2.5 left-1/2 -translate-x-1/2" />
+                  <Award className="text-muted-foreground z-20" />
+                </div>
+                <p>
+                  <span className="font-bold">6</span> Empresas creadas
+                </p>
+              </li>
+            </ul>
           </section>
 
           {/* Services */}
-          <section className="bg-card rounded-[2.25rem] py-5 px-10">
+          <section className="bg-card rounded-[2.25rem] py-5 px-10 relative z-20">
             <ul className="flex flex-wrap justify-center">
               {services.map((service, index) => (
                 <div key={`service-${index}`} className="flex items-center">
