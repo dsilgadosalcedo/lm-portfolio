@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { Gmail, WhatsApp } from "./icons";
 import { Button } from "./ui/button";
 
@@ -57,7 +58,7 @@ export const Hero = ({
 
       {photoUrl && (
         <div>
-          <img
+          <Image
             src={photoUrl}
             alt="Foto de perfil"
             width={280}
