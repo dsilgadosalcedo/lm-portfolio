@@ -5,6 +5,7 @@ export type PortfolioItem = {
   order?: number;
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function groupBySelect(items: any[]) {
   const grouped: Record<string, PortfolioItem[]> = {};
 
