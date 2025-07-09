@@ -1,6 +1,6 @@
-import Image from "next/image";
 import { Gmail, WhatsApp } from "./icons";
 import { Button } from "./ui/button";
+import Image from "next/image";
 
 type HeroProps = {
   description: string | undefined;
