@@ -1,13 +1,28 @@
+"use client";
+
 import { Experience } from "@/components/experience";
 import { Header } from "@/components/header";
 import { Hero } from "@/components/hero";
 import { Services } from "@/components/services";
-import { getPortfolioItems } from "@/lib/notion";
-import { groupBySelect } from "@/lib/notion.mapper";
+import { useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
+import { groupByCategory } from "@/lib/convex.mapper";
 
-export default async function Home() {
-  const rawItems = await getPortfolioItems();
-  const grouped = groupBySelect(rawItems);
+export default function Home() {
+  const grouped = useQuery(api.queries.getPortfolioItems) || {};
+
+  if (!grouped || Object.keys(grouped).length === 0) {
+    return (
+      <div className="grid min-h-screen font-[family-name:var(--font-sarala)]">
+        <main className="flex flex-col flex-1 items-center justify-center">
+          <div className="text-center">
+            <h1 className="text-2xl font-bold mb-4">Cargando...</h1>
+            <p className="text-muted-foreground">Cargando información del portafolio</p>
+          </div>
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="grid min-h-screen font-[family-name:var(--font-sarala)]">

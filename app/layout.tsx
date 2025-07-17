@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist_Mono, Sarala } from "next/font/google";
 import "./globals.css";
+import { Providers } from "./providers";
 
 const sarala = Sarala({
   variable: "--font-sarala",
@@ -27,7 +28,7 @@ export default function RootLayout({
   return (
     <html lang="es">
       <body className={`${sarala.variable} ${geistMono.variable} antialiased`}>
-        {children}
+        <Providers>{children}</Providers>
       </body>
     </html>
   );
