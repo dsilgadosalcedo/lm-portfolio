@@ -30,6 +30,17 @@ export const updatePortfolioItem = mutation({
   },
   handler: async (ctx, args) => {
     const { id, ...updates } = args;
+    
+    // If imageUrl is an empty string, we want to remove it from the record
+    if (updates.imageUrl === "") {
+      const { imageUrl, ...otherUpdates } = updates;
+      return await ctx.db.patch(id, {
+        ...otherUpdates,
+        imageUrl: undefined, // Explicitly set to undefined to remove the field
+        updatedAt: Date.now(),
+      });
+    }
+    
     return await ctx.db.patch(id, {
       ...updates,
       updatedAt: Date.now(),

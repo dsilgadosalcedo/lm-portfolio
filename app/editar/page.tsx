@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Edit, Save, X, Trash2, Plus, ArrowLeft, LogOut, Filter } from "lucide-react";
+import { Edit, Save, X, Trash2, Plus, ArrowLeft, LogOut, Filter, Linkedin, Mail, MessageCircle, User, Briefcase, Code, Building2, FileText } from "lucide-react";
 import { ConvexPortfolioItem } from "@/lib/convex.mapper";
 import type { Id } from "@/convex/_generated/dataModel";
 import { PhotoUpload } from "@/components/photo-upload";
@@ -28,19 +28,37 @@ const MULTI_ITEM_CATEGORIES = [
 // Function to get category color
 const getCategoryColor = (category: string) => {
   const colorMap: Record<string, string> = {
-    'linkedin': 'bg-blue-100/50 border-blue-200/50',
-    'description': 'bg-green-100/50 border-green-200/50',
-    'email': 'bg-purple-100/50 border-purple-200/50',
-    'profile-photo': 'bg-pink-100/50 border-pink-200/50',
-    'whatsapp': 'bg-emerald-100/50 border-emerald-200/50',
-    'experience': 'bg-orange-100/50 border-orange-200/50',
-    'service-dev-title': 'bg-indigo-100/50 border-indigo-200/50',
-    'service-dev-item': 'bg-cyan-100/50 border-cyan-200/50',
-    'service-business-title': 'bg-amber-100/50 border-amber-200/50',
-    'service-business-item': 'bg-lime-100/50 border-lime-200/50',
+    'linkedin': 'bg-blue-100/20 border-blue-200/50',
+    'description': 'bg-green-100/20 border-green-200/50',
+    'email': 'bg-purple-100/20 border-purple-200/50',
+    'profile-photo': 'bg-pink-100/20 border-pink-200/50',
+    'whatsapp': 'bg-emerald-100/20 border-emerald-200/50',
+    'experience': 'bg-orange-100/20 border-orange-200/50',
+    'service-dev-title': 'bg-indigo-100/20 border-indigo-200/50',
+    'service-dev-item': 'bg-cyan-100/20 border-cyan-200/50',
+    'service-business-title': 'bg-amber-100/20 border-amber-200/50',
+    'service-business-item': 'bg-lime-100/20 border-lime-200/50',
   };
   
-  return colorMap[category] || 'bg-gray-100/50 border-gray-200/50';
+  return colorMap[category] || 'bg-gray-100/20 border-gray-200/50';
+};
+
+// Function to get category icon
+const getCategoryIcon = (category: string) => {
+  const iconMap: Record<string, React.ComponentType<any>> = {
+    'linkedin': Linkedin,
+    'description': FileText,
+    'email': Mail,
+    'profile-photo': User,
+    'whatsapp': MessageCircle,
+    'experience': Briefcase,
+    'service-dev-title': Code,
+    'service-dev-item': Code,
+    'service-business-title': Building2,
+    'service-business-item': Building2,
+  };
+  
+  return iconMap[category] || FileText;
 };
 
 export default function EditarPage() {
@@ -125,7 +143,7 @@ export default function EditarPage() {
             <ArrowLeft size={14} />
           </Button>
         </Link>
-        <h1 className="text-3xl font-bold">Editar Portafolio</h1>
+        <h1 className="text-2xl font-bold">Editar Portafolio</h1>
         </div>
         
         <div className="flex items-center gap-2">
@@ -203,16 +221,20 @@ export default function EditarPage() {
                 {filteredItems.map((item) => (
                   <TableRow key={item._id}>
                     <TableCell>
-                      <Badge className={`${getCategoryColor(item.category)} text-white font-semibold`}>
+                      <Badge className={`${getCategoryColor(item.category)} text-white font-semibold flex items-center gap-1`}>
+                        {(() => {
+                          const IconComponent = getCategoryIcon(item.category);
+                          return <IconComponent className="w-3 h-3" />;
+                        })()}
                         {item.category}
                       </Badge>
                     </TableCell>
                     <TableCell>
                       {editingId === item._id ? (
-                        <Textarea
+                        <Input
                           value={editForm.content}
-                          onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setEditForm({ ...editForm, content: e.target.value })}
-                          className="w-full min-h-[60px]"
+                          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditForm({ ...editForm, content: e.target.value })}
+                          className="w-full "
                         />
                       ) : (
                         <div className="max-w-xs truncate" title={item.content}>
@@ -228,7 +250,7 @@ export default function EditarPage() {
                               type="number"
                               value={editForm.order}
                               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditForm({ ...editForm, order: parseInt(e.target.value) || 0 })}
-                              className="w-20"
+                              className="w-10"
                             />
                           ) : (
                             item.order || ""
@@ -271,7 +293,7 @@ export default function EditarPage() {
                               <Button
                                 size="icon"
                                 variant="ghost"
-                                className="text-red-600 hover:text-red-700 md:size-10"
+                                className="text-red-400 hover:text-red-500 md:size-10"
                               >
                                 <Trash2 size={14} />
                               </Button>

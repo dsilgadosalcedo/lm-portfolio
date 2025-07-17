@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Button } from "@/components/ui/button";
@@ -17,6 +17,7 @@ export const PhotoUpload = () => {
   const updateItem = useMutation(api.mutations.updatePortfolioItem);
   const createItem = useMutation(api.mutations.createPortfolioItem);
   const deleteFile = useMutation(api.mutations.deleteFile);
+  const deleteItem = useMutation(api.mutations.deletePortfolioItem);
   
   // Get current profile photo
   const profilePhoto = useQuery(api.queries.getItemsByCategory, { category: "profile-photo" });
@@ -31,8 +32,56 @@ export const PhotoUpload = () => {
   // Check if fileUrl is valid
   const isValidFileUrl = fileUrl && fileUrl !== "skip" && typeof fileUrl === "string";
   
-  // Loading state - only show loading if we're actually fetching data
-  const isLoading = profilePhoto === undefined || (currentPhoto?.imageUrl && currentPhoto.imageUrl.trim() !== "" && fileUrl === undefined);
+  // Loading state - show loading when fetching data OR when uploading
+  const isLoading = profilePhoto === undefined || (currentPhoto?.imageUrl && currentPhoto.imageUrl.trim() !== "" && fileUrl === undefined) || isUploading;
+
+  // Global drag and drop handlers
+  useEffect(() => {
+    const handleGlobalDrag = (e: DragEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+    };
+
+    const handleGlobalDragEnter = (e: DragEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setDragActive(true);
+    };
+
+    const handleGlobalDragLeave = (e: DragEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      // Only set dragActive to false if we're leaving the window
+      if (e.clientX <= 0 || e.clientY <= 0 || e.clientX >= window.innerWidth || e.clientY >= window.innerHeight) {
+        setDragActive(false);
+      }
+    };
+
+    const handleGlobalDrop = (e: DragEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setDragActive(false);
+      
+      const file = e.dataTransfer?.files?.[0];
+      if (file && file.type.startsWith('image/')) {
+        handleUpload(file);
+      }
+    };
+
+    // Add global event listeners
+    document.addEventListener('dragenter', handleGlobalDragEnter);
+    document.addEventListener('dragover', handleGlobalDrag);
+    document.addEventListener('dragleave', handleGlobalDragLeave);
+    document.addEventListener('drop', handleGlobalDrop);
+
+    // Cleanup
+    return () => {
+      document.removeEventListener('dragenter', handleGlobalDragEnter);
+      document.removeEventListener('dragover', handleGlobalDrag);
+      document.removeEventListener('dragleave', handleGlobalDragLeave);
+      document.removeEventListener('drop', handleGlobalDrop);
+    };
+  }, []);
 
   const handleUpload = async (file: File) => {
     if (!file) return;
@@ -97,27 +146,6 @@ export const PhotoUpload = () => {
     }
   };
 
-  const handleDrag = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (e.type === "dragenter" || e.type === "dragover") {
-      setDragActive(true);
-    } else if (e.type === "dragleave") {
-      setDragActive(false);
-    }
-  };
-
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDragActive(false);
-    
-    const file = e.dataTransfer.files?.[0];
-    if (file) {
-      handleUpload(file);
-    }
-  };
-
   const removePhoto = async () => {
     if (!currentPhoto) return;
     
@@ -132,11 +160,8 @@ export const PhotoUpload = () => {
         }
       }
       
-      // Update the item to remove the imageUrl
-      await updateItem({
-        id: currentPhoto._id,
-        imageUrl: "",
-      });
+      // Delete the entire portfolio item from the database
+      await deleteItem({ id: currentPhoto._id });
     } catch (error) {
       console.error("Error removing photo:", error);
       alert("Error removing photo. Please try again.");
@@ -144,80 +169,28 @@ export const PhotoUpload = () => {
   };
 
   return (
-    <Card className="mb-6 rounded-4xl">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Camera className="w-5 h-5" />
-          Foto de Perfil
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="flex flex-col items-center gap-4">
-          {/* Current Photo Display */}
-          {isLoading ? (
-            <div className="w-32 h-32 rounded-full bg-muted flex items-center justify-center border-4 border-dashed border-border">
-              <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-            </div>
-          ) : isValidFileUrl ? (
-            <div className="relative">
-              <img
-                src={fileUrl}
-                alt="Profile"
-                className="w-32 h-32 rounded-full object-cover border-4 border-border"
-                onError={(e) => {
-                  console.error("Error loading image:", e);
-                  // Hide the image container on error
-                  const target = e.target as HTMLImageElement;
-                  target.style.display = 'none';
-                }}
-              />
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button
-                    size="sm"
-                    variant="destructive"
-                    className="absolute -top-2 -right-2 rounded-full w-8 h-8 p-0"
-                  >
-                    <X className="w-4 h-4" />
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>¿Eliminar foto?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      ¿Estás seguro de que quieres eliminar la foto de perfil actual?
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                    <AlertDialogAction
-                      onClick={removePhoto}
-                      className="bg-red-600 hover:bg-red-700"
-                    >
-                      Eliminar
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            </div>
-          ) : (
-            <div className="w-32 h-32 rounded-full bg-muted flex items-center justify-center border-4 border-dashed border-border">
-              <User className="w-12 h-12 text-muted-foreground" />
-            </div>
-          )}
+    <>
+      {/* Global drag overlay */}
+      {dragActive && (
+        <div className="fixed inset-0 bg-primary/20 border-4 border-dashed border-primary z-50 flex items-center justify-center">
+          <div className="bg-background p-8 rounded-lg shadow-lg text-center">
+            <Upload className="w-16 h-16 text-primary mx-auto mb-4" />
+            <p className="text-lg font-medium">Suelta la imagen aquí</p>
+            <p className="text-sm text-muted-foreground">La imagen se subirá automáticamente</p>
+          </div>
+        </div>
+      )}
 
-          {/* Upload Area */}
-          <div
-            className={`w-full max-w-md p-6 border-2 border-dashed rounded-lg text-center transition-colors ${
-              dragActive
-                ? "border-primary bg-primary/5"
-                : "border-border hover:border-primary/50"
-            }`}
-            onDragEnter={handleDrag}
-            onDragLeave={handleDrag}
-            onDragOver={handleDrag}
-            onDrop={handleDrop}
-          >
+      <Card className="mb-6 rounded-4xl">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Camera className="w-5 h-5" />
+            Foto de Perfil
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-col items-center gap-4">
+            {/* Hidden file input */}
             <input
               ref={fileInputRef}
               type="file"
@@ -226,35 +199,82 @@ export const PhotoUpload = () => {
               className="hidden"
             />
             
-            <div className="flex flex-col items-center gap-2">
-              <Upload className="w-8 h-8 text-muted-foreground" />
-              <div>
-                <p className="text-sm font-medium">
-                  {isUploading ? "Subiendo..." : "Arrastra una imagen aquí o"}
-                </p>
-                <Button
-                  variant="link"
-                  className="p-0 h-auto text-sm"
-                  onClick={() => fileInputRef.current?.click()}
-                  disabled={isUploading}
-                >
-                  selecciona un archivo
-                </Button>
+            {/* Current Photo Display - Clickable */}
+            {isLoading ? (
+              <div className="w-32 h-32 rounded-full bg-muted flex items-center justify-center border-4 border-dashed border-border">
+                <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
               </div>
-              <p className="text-xs text-muted-foreground">
+            ) : isValidFileUrl ? (
+              <div className="relative">
+                <div className="group cursor-pointer" onClick={() => fileInputRef.current?.click()}>
+                  <img
+                    src={fileUrl}
+                    alt="Profile"
+                    className="w-32 h-32 rounded-full object-cover border-4 border-border transition-all group-hover:opacity-80 group-hover:scale-105"
+                    onError={(e) => {
+                      console.error("Error loading image:", e);
+                      // Hide the image container on error
+                      const target = e.target as HTMLImageElement;
+                      target.style.display = 'none';
+                    }}
+                  />
+                  {/* Hover overlay */}
+                  <div className="absolute inset-0 rounded-full bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
+                    <Upload className="w-8 h-8 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </div>
+                </div>
+                
+                {/* Remove button */}
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      size="sm"
+                      variant="destructive"
+                      className="absolute -top-2 -right-2 rounded-full w-8 h-8 p-0 z-10"
+                    >
+                      <X className="w-4 h-4" />
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>¿Eliminar foto?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        ¿Estás seguro de que quieres eliminar la foto de perfil actual?
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel className="hover:bg-transparent">Cancelar</AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={removePhoto}
+                        className="bg-red-300 hover:bg-red-400"
+                      >
+                        Eliminar
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </div>
+            ) : (
+              <div 
+                className="w-32 h-32 rounded-full bg-muted flex items-center justify-center border-4 border-dashed border-border cursor-pointer hover:border-primary/50 transition-colors group"
+                onClick={() => fileInputRef.current?.click()}
+              >
+                <User className="w-12 h-12 text-muted-foreground group-hover:text-primary transition-colors" />
+              </div>
+            )}
+
+            {/* Upload instructions */}
+            <div className="text-center">
+              <p className="text-sm text-muted-foreground">
+                Haz clic en la imagen o arrastra una imagen aquí
+              </p>
+              <p className="text-xs text-muted-foreground mt-1">
                 PNG, JPG, GIF hasta 5MB
               </p>
             </div>
           </div>
-
-          {isUploading && (
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-              Subiendo imagen...
-            </div>
-          )}
-        </div>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    </>
   );
 }; 

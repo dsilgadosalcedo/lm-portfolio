@@ -32,6 +32,7 @@ export default function SignInPage() {
                         asChild
                         disabled={isGlobalLoading}
                         required
+                        value="im-linda"
                       >
                         <Input />
                       </Clerk.Input>
