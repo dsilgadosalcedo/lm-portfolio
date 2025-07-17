@@ -1,11 +1,16 @@
 import { Separator } from "./ui/separator";
-import { PortfolioItem } from "@/lib/notion.mapper";
+
+type ServiceItem = {
+  id?: string;
+  _id?: string;
+  content: string;
+};
 
 type ServicesProps = {
   devServicesTitle: string | undefined;
-  devServices: PortfolioItem[] | undefined;
+  devServices: ServiceItem[] | undefined;
   businessServicesTitle: string | undefined;
-  businessServices: PortfolioItem[] | undefined;
+  businessServices: ServiceItem[] | undefined;
 };
 
 export const Services = ({
@@ -30,24 +35,29 @@ const Service = ({
   services,
   title,
 }: {
-  services: PortfolioItem[];
+  services: ServiceItem[];
   title: string;
 }) => {
+  // Filter out items without valid IDs
+  const validServices = services.filter(service => service && (service.id || service._id));
+  
+  if (validServices.length === 0) return null;
+  
   return (
     <div>
       <h2 className="text-2xl font-bold mb-2">{title}</h2>
       <ul className="flex flex-wrap justify-center">
-        {services.map((service, index) => (
-          <div key={`service-${index}`} className="flex items-center">
-            <li className="flex items-center justify-center h-22.5 w-42 max-w-42 text-center text-balance text-muted-foreground">
-              {service.name}
-            </li>
-            {index !== services.length - 1 && index !== 3 && (
+        {validServices.map((service, index) => (
+          <li key={service.id || service._id || `service-${index}`} className="flex items-center">
+            <div className="flex items-center justify-center h-22.5 w-42 max-w-42 text-center text-balance text-muted-foreground">
+              {service.content}
+            </div>
+            {index !== validServices.length - 1 && index !== 3 && (
               <div className="hidden lg:block h-15">
                 <Separator orientation="vertical" className="mx-4" />
               </div>
             )}
-          </div>
+          </li>
         ))}
       </ul>
     </div>

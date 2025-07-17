@@ -26,7 +26,7 @@ export const getPortfolioItems = query({
   args: {},
   handler: async (ctx) => {
     const items = await ctx.db
-      .query("portfolioItems")
+      .query("portfolio_lm")
       .filter((q) => q.eq(q.field("isActive"), true))
       .collect();
     return groupByCategory(items);
@@ -38,7 +38,7 @@ export const getItemsByCategory = query({
   args: { category: v.string() },
   handler: async (ctx, args) => {
     return await ctx.db
-      .query("portfolioItems")
+      .query("portfolio_lm")
       .withIndex("by_category", (q) => q.eq("category", args.category))
       .filter((q) => q.eq(q.field("isActive"), true))
       .order("asc")
@@ -50,7 +50,15 @@ export const getItemsByCategory = query({
 export const getAllPortfolioItems = query({
   args: {},
   handler: async (ctx) => {
-    return await ctx.db.query("portfolioItems").collect();
+    return await ctx.db.query("portfolio_lm").collect();
+  },
+});
+
+// Get file URL from storage ID
+export const getFileUrl = query({
+  args: { storageId: v.string() },
+  handler: async (ctx, args) => {
+    return await ctx.storage.getUrl(args.storageId);
   },
 });
 

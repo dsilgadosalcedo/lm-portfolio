@@ -2,8 +2,7 @@ import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 
 export default defineSchema({
-  portfolioItems: defineTable({
-    name: v.string(),
+  portfolio_lm: defineTable({
     category: v.string(), // linkedin, description, email, profile-photo, whatsapp, experience, service-dev-title, service-dev-item, service-business-title, service-business-item
     content: v.string(),
     imageUrl: v.optional(v.string()),

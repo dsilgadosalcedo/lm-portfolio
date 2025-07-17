@@ -4,14 +4,13 @@ import { v } from "convex/values";
 // Create new portfolio item
 export const createPortfolioItem = mutation({
   args: {
-    name: v.string(),
     category: v.string(),
     content: v.string(),
     imageUrl: v.optional(v.string()),
     order: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
-    return await ctx.db.insert("portfolioItems", {
+    return await ctx.db.insert("portfolio_lm", {
       ...args,
       isActive: true,
       createdAt: Date.now(),
@@ -23,8 +22,7 @@ export const createPortfolioItem = mutation({
 // Update portfolio item
 export const updatePortfolioItem = mutation({
   args: {
-    id: v.id("portfolioItems"),
-    name: v.optional(v.string()),
+    id: v.id("portfolio_lm"),
     content: v.optional(v.string()),
     imageUrl: v.optional(v.string()),
     order: v.optional(v.number()),
@@ -41,9 +39,17 @@ export const updatePortfolioItem = mutation({
 
 // Delete portfolio item
 export const deletePortfolioItem = mutation({
-  args: { id: v.id("portfolioItems") },
+  args: { id: v.id("portfolio_lm") },
   handler: async (ctx, args) => {
     await ctx.db.delete(args.id);
+  },
+});
+
+// Generate upload URL for file storage
+export const generateUploadUrl = mutation({
+  args: {},
+  handler: async (ctx) => {
+    return await ctx.storage.generateUploadUrl();
   },
 });
 

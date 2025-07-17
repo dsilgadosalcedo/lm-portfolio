@@ -1,13 +1,12 @@
 export type PortfolioItem = {
   id: string;
-  name: string;
+  content: string;
   image?: string;
   order?: number;
 };
 
 export type ConvexPortfolioItem = {
   _id: string;
-  name: string;
   category: string;
   content: string;
   imageUrl?: string;
@@ -17,19 +16,18 @@ export type ConvexPortfolioItem = {
   updatedAt: number;
 };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function groupByCategory(items: ConvexPortfolioItem[]) {
   const grouped: Record<string, PortfolioItem[]> = {};
 
   for (const item of items) {
     const category = item.category;
-    const name = item.name;
+    const content = item.content;
     const image = item.imageUrl;
     const orderValue = item.order;
 
     const entry: PortfolioItem = {
       id: item._id,
-      name,
+      content,
       ...(image && { image }),
       ...(orderValue !== undefined && { order: orderValue }),
     };
