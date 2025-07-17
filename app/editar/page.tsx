@@ -9,10 +9,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Edit, Save, X, Trash2, Plus } from "lucide-react";
+import { Edit, Save, X, Trash2, Plus, ArrowLeft } from "lucide-react";
 import { ConvexPortfolioItem } from "@/lib/convex.mapper";
 import type { Id } from "@/convex/_generated/dataModel";
 import { PhotoUpload } from "@/components/photo-upload";
+import Link from "next/link";
 
 // Categories that have multiple items and need ordering
 const MULTI_ITEM_CATEGORIES = [
@@ -20,6 +21,24 @@ const MULTI_ITEM_CATEGORIES = [
   "service-business-item", 
   "experience"
 ];
+
+// Function to get category color
+const getCategoryColor = (category: string) => {
+  const colorMap: Record<string, string> = {
+    'linkedin': 'bg-blue-100/50 border-blue-200/50',
+    'description': 'bg-green-100/50 border-green-200/50',
+    'email': 'bg-purple-100/50 border-purple-200/50',
+    'profile-photo': 'bg-pink-100/50 border-pink-200/50',
+    'whatsapp': 'bg-emerald-100/50 border-emerald-200/50',
+    'experience': 'bg-orange-100/50 border-orange-200/50',
+    'service-dev-title': 'bg-indigo-100/50 border-indigo-200/50',
+    'service-dev-item': 'bg-cyan-100/50 border-cyan-200/50',
+    'service-business-title': 'bg-amber-100/50 border-amber-200/50',
+    'service-business-item': 'bg-lime-100/50 border-lime-200/50',
+  };
+  
+  return colorMap[category] || 'bg-gray-100/50 border-gray-200/50';
+};
 
 export default function EditarPage() {
   const items = useQuery(api.queries.getAllPortfolioItems);
@@ -85,7 +104,18 @@ export default function EditarPage() {
   return (
     <div className="p-8 max-w-6xl mx-auto">
       <div className="flex justify-between items-center mb-6">
+        <div className="flex items-center gap-2">
+          <Link href="/">
+          <Button variant="ghost" size="icon" className="md:size-10">
+            <ArrowLeft size={14} />
+          </Button>
+        </Link>
         <h1 className="text-3xl font-bold">Editar Portafolio</h1>
+        </div>
+        
+        <Button variant="ghost" size="icon" className="md:size-10">
+
+        </Button>
         <Button className="bg-green-600 hover:bg-green-700">
           <Plus className="w-4 h-4 mr-2" />
           Agregar Item
@@ -123,7 +153,9 @@ export default function EditarPage() {
                   {items?.map((item) => (
                     <tr key={item._id} className="border-b border-border hover:bg-muted/50">
                       <td className="p-3 border border-border">
-                        <Badge variant="secondary">{item.category}</Badge>
+                        <Badge className={`${getCategoryColor(item.category)} text-white font-semibold`}>
+                          {item.category}
+                        </Badge>
                       </td>
                       <td className="p-3 border border-border">
                         {editingId === item._id ? (
@@ -158,37 +190,40 @@ export default function EditarPage() {
                         {editingId === item._id ? (
                           <div className="flex gap-2">
                             <Button
-                              size="sm"
+                              size="icon"
+                              variant="ghost"
+                              className="md:size-10"
                               onClick={() => handleSave(item._id)}
-                              className="bg-green-600 hover:bg-green-700"
                             >
-                              <Save className="w-4 h-4" />
+                              <Save size={14} />
                             </Button>
                             <Button
-                              size="sm"
-                              variant="outline"
+                                size="icon"
+                              variant="ghost"
+                              className="md:size-10"
                               onClick={handleCancel}
                             >
-                              <X className="w-4 h-4" />
+                              <X size={14} />
                             </Button>
                           </div>
                         ) : (
                           <div className="flex gap-2">
                             <Button
-                              size="sm"
-                              variant="outline"
+                              size="icon"
+                              variant="ghost"
+                              className="md:size-10"
                               onClick={() => handleEdit(item)}
                             >
-                              <Edit className="w-4 h-4" />
+                              <Edit size={14} />
                             </Button>
                             <AlertDialog>
                               <AlertDialogTrigger asChild>
                                 <Button
-                                  size="sm"
-                                  variant="outline"
-                                  className="text-red-600 hover:text-red-700"
+                                  size="icon"
+                                  variant="ghost"
+                                  className="text-red-600 hover:text-red-700 md:size-10"
                                 >
-                                  <Trash2 className="w-4 h-4" />
+                                  <Trash2 size={14} />
                                 </Button>
                               </AlertDialogTrigger>
                               <AlertDialogContent>

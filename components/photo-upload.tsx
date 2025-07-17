@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Upload, X, User, Camera } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import Image from "next/image";
 
 export const PhotoUpload = () => {
   const [isUploading, setIsUploading] = useState(false);
@@ -25,8 +24,14 @@ export const PhotoUpload = () => {
   // Get file URL if we have a storage ID
   const fileUrl = useQuery(
     api.queries.getFileUrl,
-    currentPhoto?.imageUrl ? { storageId: currentPhoto.imageUrl } : "skip"
+    currentPhoto?.imageUrl && currentPhoto.imageUrl.trim() !== "" ? { storageId: currentPhoto.imageUrl } : "skip"
   );
+
+  // Check if fileUrl is valid
+  const isValidFileUrl = fileUrl && fileUrl !== "skip" && typeof fileUrl === "string";
+  
+  // Loading state - only show loading if we're actually fetching data
+  const isLoading = profilePhoto === undefined || (currentPhoto?.imageUrl && currentPhoto.imageUrl.trim() !== "" && fileUrl === undefined);
 
   const handleUpload = async (file: File) => {
     if (!file) return;
@@ -127,14 +132,22 @@ export const PhotoUpload = () => {
       <CardContent>
         <div className="flex flex-col items-center gap-4">
           {/* Current Photo Display */}
-          {fileUrl ? (
+          {isLoading ? (
+            <div className="w-32 h-32 rounded-full bg-muted flex items-center justify-center border-4 border-dashed border-border">
+              <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+            </div>
+          ) : isValidFileUrl ? (
             <div className="relative">
-              <Image
+              <img
                 src={fileUrl}
                 alt="Profile"
-                width={128}
-                height={128}
                 className="w-32 h-32 rounded-full object-cover border-4 border-border"
+                onError={(e) => {
+                  console.error("Error loading image:", e);
+                  // Hide the image container on error
+                  const target = e.target as HTMLImageElement;
+                  target.style.display = 'none';
+                }}
               />
               <AlertDialog>
                 <AlertDialogTrigger asChild>

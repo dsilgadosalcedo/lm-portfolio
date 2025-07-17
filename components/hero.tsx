@@ -1,6 +1,5 @@
 import { Gmail, WhatsApp } from "./icons";
 import { Button } from "./ui/button";
-import Image from "next/image";
 
 type HeroProps = {
   description: string | undefined;
@@ -58,12 +57,15 @@ export const Hero = ({
 
       {photoUrl && (
         <div>
-          <Image
+          <img
             src={photoUrl}
             alt="Foto de perfil"
-            width={280}
-            height={280}
-            className="mask-b-from-50% mask-radial-[50%_90%] mask-radial-from-80% animate-in  fade-in fade-out duration-300"
+            className="w-[280px] h-[280px] mask-b-from-50% mask-radial-[50%_90%] mask-radial-from-80% animate-in fade-in fade-out duration-300 object-cover"
+            onError={(e) => {
+              console.error("Error loading hero image:", e);
+              const target = e.target as HTMLImageElement;
+              target.style.display = 'none';
+            }}
           />
         </div>
       )}
