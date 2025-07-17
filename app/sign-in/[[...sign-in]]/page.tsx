@@ -14,7 +14,8 @@ export default function SignInPage() {
   const { isLoaded, isSignedIn } = useUser()
 
   return (
-    <div className="bg-accent relative mx-auto w-96 rounded-[2.4rem] p-2">
+    <main className="flex flex-col items-center justify-center min-h-screen">
+      <div className="bg-accent relative mx-auto w-96 rounded-[2.4rem] p-2">
       <div className="from-background to-background/97 bg-primary border-primary/30 space-y-4 rounded-4xl border bg-gradient-to-b px-8 py-12">
         <h1 className="mb-10 text-center text-xl font-bold">Iniciar sesión</h1>
 
@@ -22,7 +23,7 @@ export default function SignInPage() {
           <div className="space-y-5">
             <div className="flex flex-col gap-2">
               <Label>Usuario</Label>
-              <Input placeholder="skies" disabled />
+              <Input placeholder="im-linda" disabled />
             </div>
             <div className="flex flex-col gap-2">
               <Label>Contraseña</Label>
@@ -45,10 +46,10 @@ export default function SignInPage() {
                       <Clerk.Input
                         placeholder="mi-usuario"
                         type="identifier"
-                        disabled={isGlobalLoading}
+                        disabled
                         asChild
                         required
-                        value="skies"
+                        value="im-linda"
                       >
                         <Input />
                       </Clerk.Input>
@@ -108,5 +109,6 @@ export default function SignInPage() {
         )}
       </div>
     </div>
+    </main>
   )
 }

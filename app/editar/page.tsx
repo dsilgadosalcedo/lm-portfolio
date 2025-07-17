@@ -16,6 +16,7 @@ import { PhotoUpload } from "@/components/photo-upload";
 import Link from "next/link";
 import { useUser, SignOutButton, SignedIn } from "@clerk/nextjs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 // Categories that have multiple items and need ordering
 const MULTI_ITEM_CATEGORIES = [
@@ -127,25 +128,23 @@ export default function EditarPage() {
         <h1 className="text-3xl font-bold">Editar Portafolio</h1>
         </div>
         
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2">
           {user && (
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <span>Bonjour, Linda!</span>
+              <span>Bonjour{user.firstName && `, ${user.firstName}!`}</span>
             </div>
           )}
-          {/* <SignedIn>
-            <SignOutButton>
-              <Button variant="outline" size="sm">
-                <LogOut className="w-4 h-4 mr-2" />
-                Cerrar Sesión
-              </Button>
-            </SignOutButton>
-          </SignedIn> */}
-          
           <Button className="bg-green-600 hover:bg-green-700 rounded-full">
-            <Plus className="w-4 h-4 mr-2" />
+            <Plus className="w-4 h-4 " />
             Agregar Item
           </Button>
+          <SignedIn>
+            <SignOutButton>
+              <Button variant="outline" size="icon" className="md:size-10 hover:bg-transparent">
+                <LogOut className="w-4 h-4" />
+              </Button>
+            </SignOutButton>
+          </SignedIn>
         </div>
       </div>
       
@@ -189,40 +188,39 @@ export default function EditarPage() {
           </div>
           </CardHeader>
           <CardContent>
-            <div className="overflow-x-auto">
-              <table className="w-full border-collapse border border-border">
-                <thead>
-                  <tr className="bg-muted">
-                    <th className="p-3 text-left border border-border">Categoría</th>
-                    <th className="p-3 text-left border border-border">Contenido</th>
-                    {filteredItems.some(item => shouldShowOrder(item.category)) && (
-                      <th className="p-3 text-left border border-border">Orden</th>
-                    )}
-                    <th className="p-3 text-left border border-border">Acciones</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredItems.map((item) => (
-                    <tr key={item._id} className="border-b border-border hover:bg-muted/50">
-                      <td className="p-3 border border-border">
-                        <Badge className={`${getCategoryColor(item.category)} text-white font-semibold`}>
-                          {item.category}
-                        </Badge>
-                      </td>
-                      <td className="p-3 border border-border">
-                        {editingId === item._id ? (
-                          <Textarea
-                            value={editForm.content}
-                            onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setEditForm({ ...editForm, content: e.target.value })}
-                            className="w-full min-h-[60px]"
-                          />
-                        ) : (
-                          <div className="max-w-xs truncate" title={item.content}>
-                            {item.content}
-                          </div>
-                        )}
-                      </td>
-                      <td className="p-3 border border-border">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Categoría</TableHead>
+                  <TableHead>Contenido</TableHead>
+                  {filteredItems.some(item => shouldShowOrder(item.category)) && (
+                    <TableHead>Orden</TableHead>
+                  )}
+                  <TableHead>Acciones</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredItems.map((item) => (
+                  <TableRow key={item._id}>
+                    <TableCell>
+                      <Badge className={`${getCategoryColor(item.category)} text-white font-semibold`}>
+                        {item.category}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      {editingId === item._id ? (
+                        <Textarea
+                          value={editForm.content}
+                          onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setEditForm({ ...editForm, content: e.target.value })}
+                          className="w-full min-h-[60px]"
+                        />
+                      ) : (
+                        <div className="max-w-xs truncate" title={item.content}>
+                          {item.content}
+                        </div>
+                      )}
+                    </TableCell>
+                    <TableCell>
                       {shouldShowOrder(item.category) && (
                         <> 
                           {editingId === item._id ? (
@@ -237,73 +235,72 @@ export default function EditarPage() {
                           )}
                         </>
                       )}
-                      </td>
-                      <td className="p-3 border border-border">
-                        {editingId === item._id ? (
-                          <div className="flex gap-2">
-                            <Button
-                              size="icon"
-                              variant="ghost"
-                              className="md:size-10"
-                              onClick={() => handleSave(item._id)}
-                            >
-                              <Save size={14} />
-                            </Button>
-                            <Button
+                    </TableCell>
+                    <TableCell>
+                      {editingId === item._id ? (
+                        <div className="flex gap-2">
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            className="md:size-10"
+                            onClick={() => handleSave(item._id)}
+                          >
+                            <Save size={14} />
+                          </Button>
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            className="md:size-10"
+                            onClick={handleCancel}
+                          >
+                            <X size={14} />
+                          </Button>
+                        </div>
+                      ) : (
+                        <div className="flex gap-2">
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            className="md:size-10"
+                            onClick={() => handleEdit(item)}
+                          >
+                            <Edit size={14} />
+                          </Button>
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button
                                 size="icon"
-                              variant="ghost"
-                              className="md:size-10"
-                              onClick={handleCancel}
-                            >
-                              <X size={14} />
-                            </Button>
-                          </div>
-                        ) : (
-                          <div className="flex gap-2">
-                            <Button
-                              size="icon"
-                              variant="ghost"
-                              className="md:size-10"
-                              onClick={() => handleEdit(item)}
-                            >
-                              <Edit size={14} />
-                            </Button>
-                            <AlertDialog>
-                              <AlertDialogTrigger asChild>
-                                <Button
-                                  size="icon"
-                                  variant="ghost"
-                                  className="text-red-600 hover:text-red-700 md:size-10"
+                                variant="ghost"
+                                className="text-red-600 hover:text-red-700 md:size-10"
+                              >
+                                <Trash2 size={14} />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Esta acción no se puede deshacer. Se eliminará permanentemente este elemento del portafolio.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                <AlertDialogAction
+                                  onClick={() => handleDelete(item._id)}
+                                  className="bg-red-600 hover:bg-red-700"
                                 >
-                                  <Trash2 size={14} />
-                                </Button>
-                              </AlertDialogTrigger>
-                              <AlertDialogContent>
-                                <AlertDialogHeader>
-                                  <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
-                                  <AlertDialogDescription>
-                                    Esta acción no se puede deshacer. Se eliminará permanentemente este elemento del portafolio.
-                                  </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                                  <AlertDialogAction
-                                    onClick={() => handleDelete(item._id)}
-                                    className="bg-red-600 hover:bg-red-700"
-                                  >
-                                    Eliminar
-                                  </AlertDialogAction>
-                                </AlertDialogFooter>
-                              </AlertDialogContent>
-                            </AlertDialog>
-                          </div>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                                  Eliminar
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        </div>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           </CardContent>
         </Card>
       )}
