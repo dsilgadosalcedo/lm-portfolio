@@ -11,32 +11,26 @@ const portfolioData = [
   {
     category: "description",
     content: "Tu aliada legal estratégica para el mundo Tech",
-    order: 1,
   },
   {
     category: "email",
     content: "lindamarcela1408@gmail.com",
-    order: 1,
   },
   {
     category: "linkedin",
     content: "lindamarcela",
-    order: 1,
   },
   {
     category: "whatsapp",
     content: "573136037029",
-    order: 1,
   },
   {
     category: "service-dev-title",
     content: "Para profesionales Tech y creadores digitales",
-    order: 1,
   },
   {
     category: "service-business-title",
     content: "Para startups y empresas",
-    order: 1,
   },
   // Tech professionals services
   {

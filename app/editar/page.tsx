@@ -14,6 +14,13 @@ import { ConvexPortfolioItem } from "@/lib/convex.mapper";
 import type { Id } from "@/convex/_generated/dataModel";
 import { PhotoUpload } from "@/components/photo-upload";
 
+// Categories that have multiple items and need ordering
+const MULTI_ITEM_CATEGORIES = [
+  "service-dev-item",
+  "service-business-item", 
+  "experience"
+];
+
 export default function EditarPage() {
   const items = useQuery(api.queries.getAllPortfolioItems);
   const updateItem = useMutation(api.mutations.updatePortfolioItem);
@@ -35,11 +42,22 @@ export default function EditarPage() {
 
   const handleSave = async (id: Id<"portfolio_lm">) => {
     try {
-      await updateItem({
+      const updateData: {
+        id: Id<"portfolio_lm">;
+        content: string;
+        order?: number;
+      } = {
         id,
         content: editForm.content,
-        order: editForm.order,
-      });
+      };
+      
+      // Only include order if the category needs it
+      const item = items?.find(i => i._id === id);
+      if (item && MULTI_ITEM_CATEGORIES.includes(item.category)) {
+        updateData.order = editForm.order;
+      }
+      
+      await updateItem(updateData);
       setEditingId(null);
     } catch (error) {
       console.error("Error updating item:", error);
@@ -58,6 +76,10 @@ export default function EditarPage() {
 
   const handleCancel = () => {
     setEditingId(null);
+  };
+
+  const shouldShowOrder = (category: string) => {
+    return MULTI_ITEM_CATEGORIES.includes(category);
   };
 
   return (
@@ -91,7 +113,9 @@ export default function EditarPage() {
                   <tr className="bg-muted">
                     <th className="p-3 text-left border border-border">Categoría</th>
                     <th className="p-3 text-left border border-border">Contenido</th>
-                    <th className="p-3 text-left border border-border">Orden</th>
+                    {items.some(item => shouldShowOrder(item.category)) && (
+                      <th className="p-3 text-left border border-border">Orden</th>
+                    )}
                     <th className="p-3 text-left border border-border">Acciones</th>
                   </tr>
                 </thead>
@@ -115,32 +139,34 @@ export default function EditarPage() {
                         )}
                       </td>
                       <td className="p-3 border border-border">
-                        {editingId === item._id ? (
-                          <Input
-                            type="number"
-                            value={editForm.order}
-                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditForm({ ...editForm, order: parseInt(e.target.value) || 0 })}
-                            className="w-20"
-                          />
-                        ) : (
-                          item.order || ""
-                        )}
+                      {shouldShowOrder(item.category) && (
+                        <> 
+                          {editingId === item._id ? (
+                            <Input
+                              type="number"
+                              value={editForm.order}
+                              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditForm({ ...editForm, order: parseInt(e.target.value) || 0 })}
+                              className="w-20"
+                            />
+                          ) : (
+                            item.order || ""
+                          )}
+                        </>
+                      )}
                       </td>
                       <td className="p-3 border border-border">
                         {editingId === item._id ? (
                           <div className="flex gap-2">
                             <Button
-                              size="icon"
-                                variant="ghost"
+                              size="sm"
                               onClick={() => handleSave(item._id)}
-                              className="bg-green-600 hover:bg-green-700 md:size-10"
+                              className="bg-green-600 hover:bg-green-700"
                             >
                               <Save className="w-4 h-4" />
                             </Button>
                             <Button
-                                size="icon"
-                              variant="ghost"
-                              className="md:size-10"
+                              size="sm"
+                              variant="outline"
                               onClick={handleCancel}
                             >
                               <X className="w-4 h-4" />
@@ -149,21 +175,20 @@ export default function EditarPage() {
                         ) : (
                           <div className="flex gap-2">
                             <Button
-                              size="icon"
-                              variant="ghost"
-                              className="md:size-10"
+                              size="sm"
+                              variant="outline"
                               onClick={() => handleEdit(item)}
                             >
-                              <Edit size={16} />
+                              <Edit className="w-4 h-4" />
                             </Button>
                             <AlertDialog>
                               <AlertDialogTrigger asChild>
                                 <Button
-                                  size="icon"
-                                  variant="ghost"
-                                  className="text-red-600 hover:text-red-700 md:size-10"
+                                  size="sm"
+                                  variant="outline"
+                                  className="text-red-600 hover:text-red-700"
                                 >
-                                  <Trash2 size={16} />
+                                  <Trash2 className="w-4 h-4" />
                                 </Button>
                               </AlertDialogTrigger>
                               <AlertDialogContent>
