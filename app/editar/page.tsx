@@ -9,11 +9,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Edit, Save, X, Trash2, Plus, ArrowLeft } from "lucide-react";
+import { Edit, Save, X, Trash2, Plus, ArrowLeft, LogOut } from "lucide-react";
 import { ConvexPortfolioItem } from "@/lib/convex.mapper";
 import type { Id } from "@/convex/_generated/dataModel";
 import { PhotoUpload } from "@/components/photo-upload";
 import Link from "next/link";
+import { useUser, SignOutButton, SignedIn } from "@clerk/nextjs";
 
 // Categories that have multiple items and need ordering
 const MULTI_ITEM_CATEGORIES = [
@@ -41,6 +42,7 @@ const getCategoryColor = (category: string) => {
 };
 
 export default function EditarPage() {
+  const { user } = useUser();
   const items = useQuery(api.queries.getAllPortfolioItems);
   const updateItem = useMutation(api.mutations.updatePortfolioItem);
   const deleteItem = useMutation(api.mutations.deletePortfolioItem);
@@ -113,13 +115,26 @@ export default function EditarPage() {
         <h1 className="text-3xl font-bold">Editar Portafolio</h1>
         </div>
         
-        <Button variant="ghost" size="icon" className="md:size-10">
-
-        </Button>
-        <Button className="bg-green-600 hover:bg-green-700">
-          <Plus className="w-4 h-4 mr-2" />
-          Agregar Item
-        </Button>
+        <div className="flex items-center gap-4">
+          {user && (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <span>Hola, Linda</span>
+            </div>
+          )}
+          {/* <SignedIn>
+            <SignOutButton>
+              <Button variant="outline" size="sm">
+                <LogOut className="w-4 h-4 mr-2" />
+                Cerrar Sesión
+              </Button>
+            </SignOutButton>
+          </SignedIn> */}
+          
+          <Button className="bg-green-600 hover:bg-green-700">
+            <Plus className="w-4 h-4 mr-2" />
+            Agregar Item
+          </Button>
+        </div>
       </div>
       
       {/* Photo Upload Section */}

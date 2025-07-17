@@ -4,6 +4,7 @@ import { Experience } from "@/components/experience";
 import { Header } from "@/components/header";
 import { Hero } from "@/components/hero";
 import { Services } from "@/components/services";
+import { PortfolioSkeleton } from "@/components/skeleton";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 
@@ -18,16 +19,7 @@ export default function Home() {
   );
 
   if (!grouped || Object.keys(grouped).length === 0) {
-    return (
-      <div className="grid min-h-screen font-[family-name:var(--font-sarala)]">
-        <main className="flex flex-col flex-1 items-center justify-center">
-          <div className="text-center">
-            <h1 className="text-2xl font-bold mb-4">Cargando...</h1>
-            <p className="text-muted-foreground">Cargando información del portafolio</p>
-          </div>
-        </main>
-      </div>
-    );
+    return <PortfolioSkeleton />;
   }
 
   return (

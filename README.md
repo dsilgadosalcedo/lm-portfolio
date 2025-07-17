@@ -1,4 +1,23 @@
+# LM Portfolio
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+
+## Authentication Setup
+
+This project uses [Clerk](https://clerk.com) for authentication. To set up authentication:
+
+1. Create a Clerk account and set up your application
+2. Add the following environment variables to your `.env.local` file:
+
+```bash
+# Clerk Authentication
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=your_publishable_key_here
+CLERK_SECRET_KEY=your_secret_key_here
+
+# Clerk URLs
+NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in
+NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL=/editar
+```
 
 ## Getting Started
 
@@ -15,6 +34,10 @@ bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+- **Public Route**: `/` - Home page (public)
+- **Protected Route**: `/editar` - Admin panel (requires authentication)
+- **Auth Route**: `/sign-in` - Sign-in page (sign-ups are disabled)
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 

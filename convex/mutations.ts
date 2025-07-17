@@ -53,6 +53,14 @@ export const generateUploadUrl = mutation({
   },
 });
 
+// Delete file from storage
+export const deleteFile = mutation({
+  args: { storageId: v.string() },
+  handler: async (ctx, args) => {
+    await ctx.storage.delete(args.storageId);
+  },
+});
+
 // Create user
 export const createUser = mutation({
   args: {

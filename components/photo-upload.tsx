@@ -16,6 +16,7 @@ export const PhotoUpload = () => {
   const generateUploadUrl = useMutation(api.mutations.generateUploadUrl);
   const updateItem = useMutation(api.mutations.updatePortfolioItem);
   const createItem = useMutation(api.mutations.createPortfolioItem);
+  const deleteFile = useMutation(api.mutations.deleteFile);
   
   // Get current profile photo
   const profilePhoto = useQuery(api.queries.getItemsByCategory, { category: "profile-photo" });
@@ -38,6 +39,16 @@ export const PhotoUpload = () => {
     
     setIsUploading(true);
     try {
+      // Delete old image if it exists
+      if (currentPhoto?.imageUrl && currentPhoto.imageUrl.trim() !== "") {
+        try {
+          await deleteFile({ storageId: currentPhoto.imageUrl });
+        } catch (error) {
+          console.warn("Error deleting old image:", error);
+          // Continue with upload even if deletion fails
+        }
+      }
+      
       // Generate upload URL
       const uploadUrl = await generateUploadUrl();
       
@@ -111,6 +122,17 @@ export const PhotoUpload = () => {
     if (!currentPhoto) return;
     
     try {
+      // Delete file from storage if it exists
+      if (currentPhoto.imageUrl && currentPhoto.imageUrl.trim() !== "") {
+        try {
+          await deleteFile({ storageId: currentPhoto.imageUrl });
+        } catch (error) {
+          console.warn("Error deleting file from storage:", error);
+          // Continue with removal even if file deletion fails
+        }
+      }
+      
+      // Update the item to remove the imageUrl
       await updateItem({
         id: currentPhoto._id,
         imageUrl: "",
