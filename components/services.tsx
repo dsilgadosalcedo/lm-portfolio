@@ -19,6 +19,10 @@ export const Services = ({
   businessServicesTitle,
   businessServices,
 }: ServicesProps) => {
+  if (!devServices && !businessServices) return null;
+
+  console.log(devServices, businessServices);
+  
   return (
     <section className="bg-card mb-4 lg:mb-8 rounded-[2.25rem] py-5 px-10 relative z-20 flex flex-col gap-4">
       {devServices && devServicesTitle && (

@@ -54,9 +54,9 @@ export const Hero = ({
           </span>
         </div>
       </div>
-
-      {photoUrl && (
-        <div>
+      
+      <div className="w-[280px] h-[280px]">
+        {photoUrl && (
           <img
             src={photoUrl}
             alt="Foto de perfil"
@@ -67,8 +67,8 @@ export const Hero = ({
               target.style.display = 'none';
             }}
           />
-        </div>
-      )}
+        )}
+      </div>
     </section>
   );
 };
