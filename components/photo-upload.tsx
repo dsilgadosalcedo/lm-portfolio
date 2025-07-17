@@ -144,7 +144,7 @@ export const PhotoUpload = () => {
   };
 
   return (
-    <Card className="mb-6">
+    <Card className="mb-6 rounded-4xl">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Camera className="w-5 h-5" />

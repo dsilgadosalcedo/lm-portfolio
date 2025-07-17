@@ -9,12 +9,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Edit, Save, X, Trash2, Plus, ArrowLeft, LogOut } from "lucide-react";
+import { Edit, Save, X, Trash2, Plus, ArrowLeft, LogOut, Filter } from "lucide-react";
 import { ConvexPortfolioItem } from "@/lib/convex.mapper";
 import type { Id } from "@/convex/_generated/dataModel";
 import { PhotoUpload } from "@/components/photo-upload";
 import Link from "next/link";
 import { useUser, SignOutButton, SignedIn } from "@clerk/nextjs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 // Categories that have multiple items and need ordering
 const MULTI_ITEM_CATEGORIES = [
@@ -52,6 +53,17 @@ export default function EditarPage() {
     content: "",
     order: 0,
   });
+  const [categoryFilter, setCategoryFilter] = useState<string>("all");
+
+  // Get unique categories for filter dropdown
+  const categories = items ? [...new Set(items.map(item => item.category).filter(cat => cat !== 'profile-photo'))] : [];
+
+  // Filter items based on selected category
+  const filteredItems = items ? items.filter(item => {
+    if (item.category === 'profile-photo') return false;
+    if (categoryFilter === 'all') return true;
+    return item.category === categoryFilter;
+  }) : [];
 
   const handleEdit = (item: ConvexPortfolioItem) => {
     setEditingId(item._id as Id<'portfolio_lm'>);
@@ -118,7 +130,7 @@ export default function EditarPage() {
         <div className="flex items-center gap-4">
           {user && (
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <span>Hola, Linda</span>
+              <span>Bonjour, Linda!</span>
             </div>
           )}
           {/* <SignedIn>
@@ -130,7 +142,7 @@ export default function EditarPage() {
             </SignOutButton>
           </SignedIn> */}
           
-          <Button className="bg-green-600 hover:bg-green-700">
+          <Button className="bg-green-600 hover:bg-green-700 rounded-full">
             <Plus className="w-4 h-4 mr-2" />
             Agregar Item
           </Button>
@@ -141,15 +153,40 @@ export default function EditarPage() {
       <PhotoUpload />
       
       {!items ? (
-        <Card>
+        <Card className="rounded-4xl">
           <CardContent className="p-8 text-center">
             <p className="text-muted-foreground">Cargando...</p>
           </CardContent>
         </Card>
       ) : (
-        <Card>
-          <CardHeader>
-            <CardTitle>Elementos del Portafolio ({items.length})</CardTitle>
+        <Card className="rounded-4xl">
+          <CardHeader className="flex flex-row justify-between">
+            <CardTitle>Elementos del Portafolio ({filteredItems.length})</CardTitle>
+            <div className="flex items-center gap-4">
+            <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+              <SelectTrigger className="w-48">
+                <SelectValue placeholder="Todas las categorías" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todas las categorías</SelectItem>
+                {categories.map((category) => (
+                  <SelectItem key={category} value={category}>
+                    {category}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {categoryFilter !== 'all' && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setCategoryFilter('all')}
+                className="text-muted-foreground hover:text-foreground"
+              >
+                Limpiar filtro
+              </Button>
+            )}
+          </div>
           </CardHeader>
           <CardContent>
             <div className="overflow-x-auto">
@@ -158,14 +195,14 @@ export default function EditarPage() {
                   <tr className="bg-muted">
                     <th className="p-3 text-left border border-border">Categoría</th>
                     <th className="p-3 text-left border border-border">Contenido</th>
-                    {items.some(item => shouldShowOrder(item.category)) && (
+                    {filteredItems.some(item => shouldShowOrder(item.category)) && (
                       <th className="p-3 text-left border border-border">Orden</th>
                     )}
                     <th className="p-3 text-left border border-border">Acciones</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {items?.map((item) => (
+                  {filteredItems.map((item) => (
                     <tr key={item._id} className="border-b border-border hover:bg-muted/50">
                       <td className="p-3 border border-border">
                         <Badge className={`${getCategoryColor(item.category)} text-white font-semibold`}>
