@@ -57,6 +57,7 @@ export const Hero = ({
       
       <div className="w-[280px] h-[280px]">
         {photoUrl && (
+          // eslint-disable-next-line @next/next/no-img-element
           <img
             src={photoUrl}
             alt="Foto de perfil"

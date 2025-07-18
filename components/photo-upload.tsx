@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Button } from "@/components/ui/button";
@@ -35,55 +35,7 @@ export const PhotoUpload = () => {
   // Loading state - show loading when fetching data OR when uploading
   const isLoading = profilePhoto === undefined || (currentPhoto?.imageUrl && currentPhoto.imageUrl.trim() !== "" && fileUrl === undefined) || isUploading;
 
-  // Global drag and drop handlers
-  useEffect(() => {
-    const handleGlobalDrag = (e: DragEvent) => {
-      e.preventDefault();
-      e.stopPropagation();
-    };
-
-    const handleGlobalDragEnter = (e: DragEvent) => {
-      e.preventDefault();
-      e.stopPropagation();
-      setDragActive(true);
-    };
-
-    const handleGlobalDragLeave = (e: DragEvent) => {
-      e.preventDefault();
-      e.stopPropagation();
-      // Only set dragActive to false if we're leaving the window
-      if (e.clientX <= 0 || e.clientY <= 0 || e.clientX >= window.innerWidth || e.clientY >= window.innerHeight) {
-        setDragActive(false);
-      }
-    };
-
-    const handleGlobalDrop = (e: DragEvent) => {
-      e.preventDefault();
-      e.stopPropagation();
-      setDragActive(false);
-      
-      const file = e.dataTransfer?.files?.[0];
-      if (file && file.type.startsWith('image/')) {
-        handleUpload(file);
-      }
-    };
-
-    // Add global event listeners
-    document.addEventListener('dragenter', handleGlobalDragEnter);
-    document.addEventListener('dragover', handleGlobalDrag);
-    document.addEventListener('dragleave', handleGlobalDragLeave);
-    document.addEventListener('drop', handleGlobalDrop);
-
-    // Cleanup
-    return () => {
-      document.removeEventListener('dragenter', handleGlobalDragEnter);
-      document.removeEventListener('dragover', handleGlobalDrag);
-      document.removeEventListener('dragleave', handleGlobalDragLeave);
-      document.removeEventListener('drop', handleGlobalDrop);
-    };
-  }, []);
-
-  const handleUpload = async (file: File) => {
+  const handleUpload = useCallback(async (file: File) => {
     if (!file) return;
     
     setIsUploading(true);
@@ -137,7 +89,55 @@ export const PhotoUpload = () => {
     } finally {
       setIsUploading(false);
     }
-  };
+  }, [currentPhoto, deleteFile, generateUploadUrl, updateItem, createItem]);
+
+  // Global drag and drop handlers
+  useEffect(() => {
+    const handleGlobalDrag = (e: DragEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+    };
+
+    const handleGlobalDragEnter = (e: DragEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setDragActive(true);
+    };
+
+    const handleGlobalDragLeave = (e: DragEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      // Only set dragActive to false if we're leaving the window
+      if (e.clientX <= 0 || e.clientY <= 0 || e.clientX >= window.innerWidth || e.clientY >= window.innerHeight) {
+        setDragActive(false);
+      }
+    };
+
+    const handleGlobalDrop = (e: DragEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setDragActive(false);
+      
+      const file = e.dataTransfer?.files?.[0];
+      if (file && file.type.startsWith('image/')) {
+        handleUpload(file);
+      }
+    };
+
+    // Add global event listeners
+    document.addEventListener('dragenter', handleGlobalDragEnter);
+    document.addEventListener('dragover', handleGlobalDrag);
+    document.addEventListener('dragleave', handleGlobalDragLeave);
+    document.addEventListener('drop', handleGlobalDrop);
+
+    // Cleanup
+    return () => {
+      document.removeEventListener('dragenter', handleGlobalDragEnter);
+      document.removeEventListener('dragover', handleGlobalDrag);
+      document.removeEventListener('dragleave', handleGlobalDragLeave);
+      document.removeEventListener('drop', handleGlobalDrop);
+    };
+  }, [handleUpload]);
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -207,6 +207,7 @@ export const PhotoUpload = () => {
             ) : isValidFileUrl ? (
               <div className="relative">
                 <div className="group cursor-pointer" onClick={() => fileInputRef.current?.click()}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={fileUrl}
                     alt="Profile"

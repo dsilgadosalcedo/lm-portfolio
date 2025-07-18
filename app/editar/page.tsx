@@ -5,11 +5,10 @@ import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Edit, Save, X, Trash2, Plus, ArrowLeft, LogOut, Filter, Linkedin, Mail, MessageCircle, User, Briefcase, Code, Building2, FileText } from "lucide-react";
+import { Edit, Save, X, Trash2, Plus, ArrowLeft, LogOut, Linkedin, Mail, MessageCircle, User, Briefcase, Code, Building2, FileText } from "lucide-react";
 import { ConvexPortfolioItem } from "@/lib/convex.mapper";
 import type { Id } from "@/convex/_generated/dataModel";
 import { PhotoUpload } from "@/components/photo-upload";
@@ -45,7 +44,7 @@ const getCategoryColor = (category: string) => {
 
 // Function to get category icon
 const getCategoryIcon = (category: string) => {
-  const iconMap: Record<string, React.ComponentType<any>> = {
+  const iconMap: Record<string, React.ComponentType<React.SVGProps<SVGSVGElement>>> = {
     'linkedin': Linkedin,
     'description': FileText,
     'email': Mail,
