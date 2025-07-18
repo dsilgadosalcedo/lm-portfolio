@@ -4,13 +4,13 @@ import * as Clerk from "@clerk/elements/common"
 import * as SignIn from "@clerk/elements/sign-in"
 import { AlertCircleIcon, LoaderPinwheelIcon } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Suspense } from "react"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 
-export default function SignInPage() {
-
+function SignInContent() {
   return (
     <main className="flex flex-col items-center justify-center min-h-screen">
       <div className="bg-accent relative mx-auto w-96 rounded-[2.4rem] p-2">
@@ -92,5 +92,13 @@ export default function SignInPage() {
         </div>
       </div>
     </main>
+  )
+}
+
+export default function SignInPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <SignInContent />
+    </Suspense>
   )
 }
