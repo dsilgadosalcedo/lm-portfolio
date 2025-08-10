@@ -1,10 +1,14 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist_Mono, Sarala } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
+import { ClerkProvider } from "@clerk/nextjs";
+import Script from "next/script";
 import {
-  ClerkProvider,
-} from '@clerk/nextjs'
+  generateMetadata as buildMetadata,
+  generateStructuredData,
+  siteConfig,
+} from "@/lib/seo";
 
 const sarala = Sarala({
   variable: "--font-sarala",
@@ -17,11 +21,29 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  title: "Linda M. Armesto",
-  description:
-    "Soy una abogada especializada en derecho tecnológico, asesoría legal para startups, empresas de software y protección de datos.",
+export const metadata: Metadata = buildMetadata({
+  title: siteConfig.name,
+  description: siteConfig.description,
+});
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  userScalable: true,
+  viewportFit: "cover",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#0a0a0a" },
+  ],
 };
+
+const structuredData = generateStructuredData({
+  type: "WebApplication",
+  name: siteConfig.name,
+  description: siteConfig.description,
+  url: siteConfig.url,
+});
 
 export default function RootLayout({
   children,
@@ -36,6 +58,17 @@ export default function RootLayout({
       signInForceRedirectUrl="/editar"
     >
       <html lang="es">
+        <head>
+          <Script
+            id="structured-data"
+            type="application/ld+json"
+            strategy="beforeInteractive"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+          />
+          <link rel="manifest" href="/manifest.webmanifest" />
+          <meta name="theme-color" content="#0a0a0a" />
+          <meta name="color-scheme" content="dark light" />
+        </head>
         <body className={`${sarala.variable} ${geistMono.variable} antialiased`}>
           <Providers>{children}</Providers>
         </body>

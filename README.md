@@ -27,6 +27,9 @@ This project uses [Convex](https://convex.dev) as the backend. To set up Convex:
 2. Add the following environment variable to your `.env.local` file:
 
 ```bash
+# App URL (SEO)
+NEXT_PUBLIC_APP_URL=https://your-domain.com
+
 # Convex Backend
 NEXT_PUBLIC_CONVEX_URL=your_convex_url_here
 ```
@@ -73,6 +76,9 @@ The easiest way to deploy your Next.js app is to use the [Vercel Platform](https
 Make sure to add the following environment variables in your Vercel project settings:
 
 ```bash
+# App URL (SEO)
+NEXT_PUBLIC_APP_URL=https://your-domain.com
+
 # Clerk Authentication
 NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=your_publishable_key_here
 CLERK_SECRET_KEY=your_secret_key_here
@@ -90,3 +96,10 @@ NEXT_PUBLIC_CONVEX_URL=your_convex_url_here
 The build process automatically generates Convex types using `convex codegen` before building the Next.js application. This ensures that the `_generated/api` module is available during the build.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## SEO Setup
+
+- Set `NEXT_PUBLIC_APP_URL` to your production origin, e.g. `https://your-domain.com`.
+- Dynamic Open Graph image is generated from the Hero photo at `app/opengraph-image.tsx`.
+- Robots and sitemap are available at `/robots.txt` and `/sitemap.xml`.
+- Web app manifest is served from `/manifest.webmanifest`.
