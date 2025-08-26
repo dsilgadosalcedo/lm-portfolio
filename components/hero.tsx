@@ -55,20 +55,22 @@ export const Hero = ({
         </div>
       </div>
 
-      <div className="w-40 h-40 min-w-40 min-h-40 sm:min-w-52 sm:min-h-52 sm:w-52 sm:h-52 md:w-64 md:h-64 md:min-w-64 md:min-h-64 lg:w-[280px] lg:h-[280px] mx-auto md:mx-0 mb-4 md:mb-0">
-        {photoUrl && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={photoUrl}
-            alt="Foto de perfil"
-            className="w-full h-full object-cover shadow-lg md:shadow-none"
-            onError={(e) => {
-              console.error("Error loading hero image:", e);
-              const target = e.target as HTMLImageElement;
-              target.style.display = "none";
-            }}
-          />
-        )}
+      <div className="-mask-linear-70 mask-linear-from-50% mask-linear-to-100%">
+        <div className="w-40 h-40 min-w-40 min-h-40 sm:min-w-52 sm:min-h-52 sm:w-52 sm:h-52 md:w-64 md:h-64 md:min-w-64 md:min-h-64 lg:w-[280px] lg:h-[280px] mx-auto md:mx-0 mb-4 md:mb-0 rounded-4xl overflow-hidden mask-linear-75 mask-linear-from-60% mask-linear-to-100% ">
+          {photoUrl && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={photoUrl}
+              alt="Foto de perfil"
+              className="w-full h-full object-cover shadow-lg md:shadow-none"
+              onError={(e) => {
+                console.error("Error loading hero image:", e);
+                const target = e.target as HTMLImageElement;
+                target.style.display = "none";
+              }}
+            />
+          )}
+        </div>
       </div>
     </section>
   );
