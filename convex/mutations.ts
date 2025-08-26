@@ -6,6 +6,7 @@ export const createPortfolioItem = mutation({
   args: {
     category: v.string(),
     content: v.string(),
+    description: v.optional(v.string()),
     imageUrl: v.optional(v.string()),
     order: v.optional(v.number()),
   },
@@ -24,13 +25,14 @@ export const updatePortfolioItem = mutation({
   args: {
     id: v.id("portfolio_lm"),
     content: v.optional(v.string()),
+    description: v.optional(v.string()),
     imageUrl: v.optional(v.string()),
     order: v.optional(v.number()),
     isActive: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {
     const { id, ...updates } = args;
-    
+
     // If imageUrl is an empty string, we want to remove it from the record
     if (updates.imageUrl === "") {
       const { imageUrl, ...otherUpdates } = updates;
@@ -40,7 +42,7 @@ export const updatePortfolioItem = mutation({
         updatedAt: Date.now(),
       });
     }
-    
+
     return await ctx.db.patch(id, {
       ...updates,
       updatedAt: Date.now(),
@@ -85,4 +87,4 @@ export const createUser = mutation({
       createdAt: Date.now(),
     });
   },
-}); 
+});

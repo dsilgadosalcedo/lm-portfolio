@@ -1,6 +1,7 @@
 export type PortfolioItem = {
   id: string;
   content: string;
+  description?: string;
   image?: string;
   order?: number;
 };
@@ -9,6 +10,7 @@ export type ConvexPortfolioItem = {
   _id: string;
   category: string;
   content: string;
+  description?: string;
   imageUrl?: string;
   order?: number;
   isActive: boolean;
@@ -22,12 +24,14 @@ export function groupByCategory(items: ConvexPortfolioItem[]) {
   for (const item of items) {
     const category = item.category;
     const content = item.content;
+    const description = item.description;
     const image = item.imageUrl;
     const orderValue = item.order;
 
     const entry: PortfolioItem = {
       id: item._id,
       content,
+      ...(description && { description }),
       ...(image && { image }),
       ...(orderValue !== undefined && { order: orderValue }),
     };
@@ -42,4 +46,4 @@ export function groupByCategory(items: ConvexPortfolioItem[]) {
   }
 
   return grouped;
-} 
+}
