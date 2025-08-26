@@ -23,12 +23,16 @@ export const Services = ({
   return (
     <>
       {devServices && devServicesTitle && (
-        <section className="bg-card mb-4 lg:mb-8 rounded-[2.25rem] py-5 px-4 md:px-10 relative z-20 flex flex-col gap-4">
+        <section
+          className={`bg-card mb-4 rounded-[2.25rem] py-5 pb-8 px-4 md:px-10 relative z-20 flex flex-col gap-4 ${
+            !businessServices && "lg:mb-8 "
+          }`}
+        >
           <Service services={devServices} title={devServicesTitle} />
         </section>
       )}
       {businessServices && businessServicesTitle && (
-        <section className="bg-card mb-4 lg:mb-8 rounded-[2.25rem] py-5 px-4 md:px-10 relative z-20 flex flex-col gap-4">
+        <section className="bg-card mb-4 lg:mb-8 rounded-[2.25rem] pb-8 py-5 px-4 md:px-10 relative z-20 flex flex-col gap-4">
           <Service services={businessServices} title={businessServicesTitle} />
         </section>
       )}
