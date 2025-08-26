@@ -65,6 +65,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Label } from "@/components/ui/label";
+import { AddItemDialog } from "@/components/add-item-dialog";
+import { EditServiceDialog } from "@/components/edit-service-dialog";
 
 // Categories that have multiple items and need ordering
 const MULTI_ITEM_CATEGORIES = [
@@ -122,15 +124,26 @@ export default function EditarPage() {
   const [editingId, setEditingId] = useState<Id<"portfolio_lm"> | null>(null);
   const [editForm, setEditForm] = useState({
     content: "",
+    description: "",
     order: 0,
   });
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [newItemForm, setNewItemForm] = useState({
     category: "",
     content: "",
+    description: "",
     order: 0,
   });
   const [selectedTable, setSelectedTable] = useState<string>("");
+
+  const [serviceEditOpen, setServiceEditOpen] = useState(false);
+  const [serviceEditItemId, setServiceEditItemId] =
+    useState<Id<"portfolio_lm"> | null>(null);
+  const [serviceEditForm, setServiceEditForm] = useState({
+    content: "",
+    description: "",
+    order: 0,
+  });
 
   // Filter items by category groups
   const contactItems = items
@@ -158,9 +171,26 @@ export default function EditarPage() {
     : [];
 
   const handleEdit = (item: ConvexPortfolioItem) => {
+    // For service items (not titles), open dedicated edit dialog
+    if (
+      item.category === "service-dev-item" ||
+      item.category === "service-business-item"
+    ) {
+      setServiceEditItemId(item._id as Id<"portfolio_lm">);
+      setServiceEditForm({
+        content: item.content,
+        description: item.description || "",
+        order: item.order || 0,
+      });
+      setServiceEditOpen(true);
+      return;
+    }
+
+    // Service titles and non-service categories use inline row editing
     setEditingId(item._id as Id<"portfolio_lm">);
     setEditForm({
       content: item.content,
+      description: item.description || "",
       order: item.order || 0,
     });
   };
@@ -170,11 +200,17 @@ export default function EditarPage() {
       const updateData: {
         id: Id<"portfolio_lm">;
         content: string;
+        description?: string;
         order?: number;
       } = {
         id,
         content: editForm.content,
       };
+
+      // Only include description if it's not empty
+      if (editForm.description.trim()) {
+        updateData.description = editForm.description;
+      }
 
       // Only include order if the category needs it
       const item = items?.find((i) => i._id === id);
@@ -205,37 +241,46 @@ export default function EditarPage() {
 
   const handleAddItem = async () => {
     try {
-      const createData: {
+      const payload: {
+        id?: Id<"portfolio_lm">;
         category: string;
         content: string;
+        description?: string;
         order?: number;
       } = {
         category: newItemForm.category,
         content: newItemForm.content,
       };
 
-      // Only include order if the category needs it
-      if (MULTI_ITEM_CATEGORIES.includes(newItemForm.category)) {
-        createData.order = newItemForm.order;
+      if (newItemForm.description.trim()) {
+        payload.description = newItemForm.description;
       }
 
-      await createItem(createData);
+      if (MULTI_ITEM_CATEGORIES.includes(newItemForm.category)) {
+        payload.order = newItemForm.order;
+      }
+
+      await createItem(payload);
       setIsAddDialogOpen(false);
-      setNewItemForm({ category: "", content: "", order: 0 });
+      setNewItemForm({ category: "", content: "", description: "", order: 0 });
       setSelectedTable("");
     } catch (error) {
-      console.error("Error creating item:", error);
+      console.error("Error creating/updating item:", error);
     }
   };
 
   const handleCancelAdd = () => {
     setIsAddDialogOpen(false);
-    setNewItemForm({ category: "", content: "", order: 0 });
+    setNewItemForm({ category: "", content: "", description: "", order: 0 });
     setSelectedTable("");
   };
 
   const shouldShowOrder = (category: string) => {
     return MULTI_ITEM_CATEGORIES.includes(category);
+  };
+
+  const shouldShowDescription = (category: string) => {
+    return category.startsWith("service-");
   };
 
   return (
@@ -256,116 +301,42 @@ export default function EditarPage() {
               <span>Bonjour{user.firstName && `, ${user.firstName}!`}</span>
             </div>
           )}
-          <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-            <DialogContent className="sm:max-w-[425px]">
-              <DialogHeader>
-                <DialogTitle>Agregar Nuevo Elemento</DialogTitle>
-                <DialogDescription>
-                  Completa los campos para agregar un nuevo elemento al
-                  portafolio.
-                </DialogDescription>
-              </DialogHeader>
-              <div className="grid gap-4 py-4">
-                {selectedTable !== "experience" && (
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="category" className="text-right">
-                      Categoría
-                    </Label>
-                    <Select
-                      value={newItemForm.category}
-                      onValueChange={(value) =>
-                        setNewItemForm({ ...newItemForm, category: value })
-                      }
-                    >
-                      <SelectTrigger className="col-span-3">
-                        <SelectValue placeholder="Seleccionar categoría" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {selectedTable === "contact" && (
-                          <>
-                            <SelectItem value="linkedin">LinkedIn</SelectItem>
-                            <SelectItem value="description">
-                              Descripción
-                            </SelectItem>
-                            <SelectItem value="email">Email</SelectItem>
-                            <SelectItem value="whatsapp">WhatsApp</SelectItem>
-                          </>
-                        )}
-                        {selectedTable === "service-dev" && (
-                          <>
-                            <SelectItem value="service-dev-title">
-                              Servicios Dev - Título
-                            </SelectItem>
-                            <SelectItem value="service-dev-item">
-                              Servicios Dev - Item
-                            </SelectItem>
-                          </>
-                        )}
-                        {selectedTable === "service-business" && (
-                          <>
-                            <SelectItem value="service-business-title">
-                              Servicios Business - Título
-                            </SelectItem>
-                            <SelectItem value="service-business-item">
-                              Servicios Business - Item
-                            </SelectItem>
-                          </>
-                        )}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                )}
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="content" className="text-right">
-                    Contenido
-                  </Label>
-                  <Input
-                    id="content"
-                    value={newItemForm.content}
-                    onChange={(e) =>
-                      setNewItemForm({
-                        ...newItemForm,
-                        content: e.target.value,
-                      })
-                    }
-                    className="col-span-3"
-                    placeholder="Ingresa el contenido..."
-                  />
-                </div>
-                {MULTI_ITEM_CATEGORIES.includes(newItemForm.category) && (
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="order" className="text-right">
-                      Orden
-                    </Label>
-                    <Input
-                      id="order"
-                      type="number"
-                      value={newItemForm.order}
-                      onChange={(e) =>
-                        setNewItemForm({
-                          ...newItemForm,
-                          order: parseInt(e.target.value) || 0,
-                        })
-                      }
-                      className="col-span-3"
-                      placeholder="0"
-                    />
-                  </div>
-                )}
-              </div>
-              <DialogFooter>
-                <Button variant="outline" onClick={handleCancelAdd}>
-                  Cancelar
-                </Button>
-                <Button
-                  onClick={handleAddItem}
-                  disabled={!newItemForm.category || !newItemForm.content}
-                >
-                  Agregar
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
+          <AddItemDialog
+            open={isAddDialogOpen}
+            onOpenChange={setIsAddDialogOpen}
+            selectedTable={selectedTable}
+            form={newItemForm}
+            onFormChange={setNewItemForm}
+            onSubmit={handleAddItem}
+            onCancel={handleCancelAdd}
+            shouldShowDescription={shouldShowDescription}
+            multiItemCategories={MULTI_ITEM_CATEGORIES}
+          />
+          <EditServiceDialog
+            open={serviceEditOpen}
+            onOpenChange={setServiceEditOpen}
+            form={serviceEditForm}
+            onFormChange={setServiceEditForm}
+            onSubmit={async () => {
+              if (!serviceEditItemId) return;
+              try {
+                await updateItem({
+                  id: serviceEditItemId,
+                  content: serviceEditForm.content,
+                  description: serviceEditForm.description,
+                  order: serviceEditForm.order,
+                });
+                setServiceEditOpen(false);
+                setServiceEditItemId(null);
+              } catch (error) {
+                console.error(error);
+              }
+            }}
+            onCancel={() => {
+              setServiceEditOpen(false);
+              setServiceEditItemId(null);
+            }}
+          />
           <SignedIn>
             <SignOutButton>
               <Button
@@ -404,10 +375,15 @@ export default function EditarPage() {
                 onClick={() => {
                   setIsAddDialogOpen(true);
                   setSelectedTable("contact");
-                  setNewItemForm({ category: "", content: "", order: 0 });
+                  setNewItemForm({
+                    category: "",
+                    content: "",
+                    description: "",
+                    order: 0,
+                  });
                 }}
               >
-                <Plus className="w-4 h-4 mr-1" /> Agregar Item
+                <Plus /> Agregar Item
               </Button>
             </CardHeader>
             <CardContent>
@@ -550,11 +526,12 @@ export default function EditarPage() {
                   setNewItemForm({
                     category: "service-dev-item",
                     content: "",
+                    description: "",
                     order: 0,
                   });
                 }}
               >
-                <Plus className="w-4 h-4 mr-1" /> Agregar Item
+                <Plus /> Agregar Item
               </Button>
             </CardHeader>
             <CardContent>
@@ -571,136 +548,153 @@ export default function EditarPage() {
                 </TableHeader>
                 <TableBody>
                   {serviceDevItems.map((item) => (
-                    <TableRow key={item._id} className="group">
-                      <TableCell>
-                        <Badge
-                          className={`${getCategoryColor(
-                            item.category
-                          )} text-white font-semibold flex items-center gap-1`}
-                        >
-                          {(() => {
-                            const IconComponent = getCategoryIcon(
+                    <>
+                      <TableRow
+                        key={item._id}
+                        className={`group ${
+                          item.description ? "border-b-0" : ""
+                        }`}
+                      >
+                        <TableCell>
+                          <Badge
+                            className={`${getCategoryColor(
                               item.category
-                            );
-                            return <IconComponent className="w-3 h-3" />;
-                          })()}
-                          {item.category}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        {editingId === item._id ? (
-                          <Input
-                            value={editForm.content}
-                            onChange={(
-                              e: React.ChangeEvent<HTMLInputElement>
-                            ) =>
-                              setEditForm({
-                                ...editForm,
-                                content: e.target.value,
-                              })
-                            }
-                            className="w-full "
-                          />
-                        ) : (
-                          <div
-                            className="max-w-xs truncate"
-                            title={item.content}
+                            )} text-white font-semibold flex items-center gap-1`}
                           >
-                            {item.content}
-                          </div>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        {shouldShowOrder(item.category) && (
-                          <>
-                            {editingId === item._id ? (
-                              <Input
-                                type="number"
-                                value={editForm.order}
-                                onChange={(
-                                  e: React.ChangeEvent<HTMLInputElement>
-                                ) =>
-                                  setEditForm({
-                                    ...editForm,
-                                    order: parseInt(e.target.value) || 0,
-                                  })
-                                }
-                                className="w-10"
-                              />
-                            ) : (
-                              item.order || ""
-                            )}
-                          </>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        {editingId === item._id ? (
-                          <div className="flex gap-2">
-                            <Button
-                              size="icon"
-                              variant="ghost"
-                              className="md:size-10"
-                              onClick={() => handleSave(item._id)}
+                            {(() => {
+                              const IconComponent = getCategoryIcon(
+                                item.category
+                              );
+                              return <IconComponent className="w-3 h-3" />;
+                            })()}
+                            {item.category}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          {editingId === item._id ? (
+                            <Input
+                              value={editForm.content}
+                              onChange={(
+                                e: React.ChangeEvent<HTMLInputElement>
+                              ) =>
+                                setEditForm({
+                                  ...editForm,
+                                  content: e.target.value,
+                                })
+                              }
+                              className="w-full "
+                            />
+                          ) : (
+                            <div
+                              className="max-w-xs truncate"
+                              title={item.content}
                             >
-                              <Save size={14} />
-                            </Button>
-                            <Button
-                              size="icon"
-                              variant="ghost"
-                              className="md:size-10"
-                              onClick={handleCancel}
-                            >
-                              <X size={14} />
-                            </Button>
-                          </div>
-                        ) : (
-                          <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                            <Button
-                              size="icon"
-                              variant="ghost"
-                              className="md:size-10"
-                              onClick={() => handleEdit(item)}
-                            >
-                              <Edit size={14} />
-                            </Button>
-                            <AlertDialog>
-                              <AlertDialogTrigger asChild>
-                                <Button
-                                  size="icon"
-                                  variant="ghost"
-                                  className="text-red-400 hover:text-red-500 md:size-10"
-                                >
-                                  <Trash2 size={14} />
-                                </Button>
-                              </AlertDialogTrigger>
-                              <AlertDialogContent>
-                                <AlertDialogHeader>
-                                  <AlertDialogTitle>
-                                    ¿Estás seguro?
-                                  </AlertDialogTitle>
-                                  <AlertDialogDescription>
-                                    Esta acción no se puede deshacer. Se
-                                    eliminará permanentemente este elemento del
-                                    portafolio.
-                                  </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                  <AlertDialogCancel>
-                                    Cancelar
-                                  </AlertDialogCancel>
-                                  <AlertDialogAction
-                                    onClick={() => handleDelete(item._id)}
-                                    className="bg-red-600 hover:bg-red-700"
+                              {item.content}
+                            </div>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {shouldShowOrder(item.category) && (
+                            <>
+                              {editingId === item._id ? (
+                                <Input
+                                  type="number"
+                                  value={editForm.order}
+                                  onChange={(
+                                    e: React.ChangeEvent<HTMLInputElement>
+                                  ) =>
+                                    setEditForm({
+                                      ...editForm,
+                                      order: parseInt(e.target.value) || 0,
+                                    })
+                                  }
+                                  className="w-10"
+                                />
+                              ) : (
+                                item.order || ""
+                              )}
+                            </>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {editingId === item._id ? (
+                            <div className="flex gap-2">
+                              <Button
+                                size="icon"
+                                variant="ghost"
+                                className="md:size-10"
+                                onClick={() => handleSave(item._id)}
+                              >
+                                <Save size={14} />
+                              </Button>
+                              <Button
+                                size="icon"
+                                variant="ghost"
+                                className="md:size-10"
+                                onClick={handleCancel}
+                              >
+                                <X size={14} />
+                              </Button>
+                            </div>
+                          ) : (
+                            <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                              <Button
+                                size="icon"
+                                variant="ghost"
+                                className="md:size-10"
+                                onClick={() => handleEdit(item)}
+                              >
+                                <Edit size={14} />
+                              </Button>
+                              <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                  <Button
+                                    size="icon"
+                                    variant="ghost"
+                                    className="text-red-400 hover:text-red-500 md:size-10"
                                   >
-                                    Eliminar
-                                  </AlertDialogAction>
-                                </AlertDialogFooter>
-                              </AlertDialogContent>
-                            </AlertDialog>
-                          </div>
-                        )}
-                      </TableCell>
-                    </TableRow>
+                                    <Trash2 size={14} />
+                                  </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle>
+                                      ¿Estás seguro?
+                                    </AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                      Esta acción no se puede deshacer. Se
+                                      eliminará permanentemente este elemento
+                                      del portafolio.
+                                    </AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel>
+                                      Cancelar
+                                    </AlertDialogCancel>
+                                    <AlertDialogAction
+                                      onClick={() => handleDelete(item._id)}
+                                      className="bg-red-600 hover:bg-red-700"
+                                    >
+                                      Eliminar
+                                    </AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
+                            </div>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                      {item.description && (
+                        <TableRow key={`${item._id}-description`}>
+                          <TableCell></TableCell>
+                          <TableCell colSpan={3}>
+                            <p className="text-sm text-muted-foreground/80">
+                              {item.description}
+                            </p>
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </>
                   ))}
                 </TableBody>
               </Table>
@@ -723,11 +717,12 @@ export default function EditarPage() {
                   setNewItemForm({
                     category: "service-business-item",
                     content: "",
+                    description: "",
                     order: 0,
                   });
                 }}
               >
-                <Plus className="w-4 h-4 mr-1" /> Agregar Item
+                <Plus /> Agregar Item
               </Button>
             </CardHeader>
             <CardContent>
@@ -744,136 +739,153 @@ export default function EditarPage() {
                 </TableHeader>
                 <TableBody>
                   {serviceBusinessItems.map((item) => (
-                    <TableRow key={item._id} className="group">
-                      <TableCell>
-                        <Badge
-                          className={`${getCategoryColor(
-                            item.category
-                          )} text-white font-semibold flex items-center gap-1`}
-                        >
-                          {(() => {
-                            const IconComponent = getCategoryIcon(
+                    <>
+                      <TableRow
+                        key={item._id}
+                        className={`group ${
+                          item.description ? "border-b-0" : ""
+                        }`}
+                      >
+                        <TableCell>
+                          <Badge
+                            className={`${getCategoryColor(
                               item.category
-                            );
-                            return <IconComponent className="w-3 h-3" />;
-                          })()}
-                          {item.category}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        {editingId === item._id ? (
-                          <Input
-                            value={editForm.content}
-                            onChange={(
-                              e: React.ChangeEvent<HTMLInputElement>
-                            ) =>
-                              setEditForm({
-                                ...editForm,
-                                content: e.target.value,
-                              })
-                            }
-                            className="w-full "
-                          />
-                        ) : (
-                          <div
-                            className="max-w-xs truncate"
-                            title={item.content}
+                            )} text-white font-semibold flex items-center gap-1`}
                           >
-                            {item.content}
-                          </div>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        {shouldShowOrder(item.category) && (
-                          <>
-                            {editingId === item._id ? (
-                              <Input
-                                type="number"
-                                value={editForm.order}
-                                onChange={(
-                                  e: React.ChangeEvent<HTMLInputElement>
-                                ) =>
-                                  setEditForm({
-                                    ...editForm,
-                                    order: parseInt(e.target.value) || 0,
-                                  })
-                                }
-                                className="w-10"
-                              />
-                            ) : (
-                              item.order || ""
-                            )}
-                          </>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        {editingId === item._id ? (
-                          <div className="flex gap-2">
-                            <Button
-                              size="icon"
-                              variant="ghost"
-                              className="md:size-10"
-                              onClick={() => handleSave(item._id)}
+                            {(() => {
+                              const IconComponent = getCategoryIcon(
+                                item.category
+                              );
+                              return <IconComponent className="w-3 h-3" />;
+                            })()}
+                            {item.category}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          {editingId === item._id ? (
+                            <Input
+                              value={editForm.content}
+                              onChange={(
+                                e: React.ChangeEvent<HTMLInputElement>
+                              ) =>
+                                setEditForm({
+                                  ...editForm,
+                                  content: e.target.value,
+                                })
+                              }
+                              className="w-full "
+                            />
+                          ) : (
+                            <div
+                              className="max-w-xs truncate"
+                              title={item.content}
                             >
-                              <Save size={14} />
-                            </Button>
-                            <Button
-                              size="icon"
-                              variant="ghost"
-                              className="md:size-10"
-                              onClick={handleCancel}
-                            >
-                              <X size={14} />
-                            </Button>
-                          </div>
-                        ) : (
-                          <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                            <Button
-                              size="icon"
-                              variant="ghost"
-                              className="md:size-10"
-                              onClick={() => handleEdit(item)}
-                            >
-                              <Edit size={14} />
-                            </Button>
-                            <AlertDialog>
-                              <AlertDialogTrigger asChild>
-                                <Button
-                                  size="icon"
-                                  variant="ghost"
-                                  className="text-red-400 hover:text-red-500 md:size-10"
-                                >
-                                  <Trash2 size={14} />
-                                </Button>
-                              </AlertDialogTrigger>
-                              <AlertDialogContent>
-                                <AlertDialogHeader>
-                                  <AlertDialogTitle>
-                                    ¿Estás seguro?
-                                  </AlertDialogTitle>
-                                  <AlertDialogDescription>
-                                    Esta acción no se puede deshacer. Se
-                                    eliminará permanentemente este elemento del
-                                    portafolio.
-                                  </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                  <AlertDialogCancel>
-                                    Cancelar
-                                  </AlertDialogCancel>
-                                  <AlertDialogAction
-                                    onClick={() => handleDelete(item._id)}
-                                    className="bg-red-600 hover:bg-red-700"
+                              {item.content}
+                            </div>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {shouldShowOrder(item.category) && (
+                            <>
+                              {editingId === item._id ? (
+                                <Input
+                                  type="number"
+                                  value={editForm.order}
+                                  onChange={(
+                                    e: React.ChangeEvent<HTMLInputElement>
+                                  ) =>
+                                    setEditForm({
+                                      ...editForm,
+                                      order: parseInt(e.target.value) || 0,
+                                    })
+                                  }
+                                  className="w-10"
+                                />
+                              ) : (
+                                item.order || ""
+                              )}
+                            </>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {editingId === item._id ? (
+                            <div className="flex gap-2">
+                              <Button
+                                size="icon"
+                                variant="ghost"
+                                className="md:size-10"
+                                onClick={() => handleSave(item._id)}
+                              >
+                                <Save size={14} />
+                              </Button>
+                              <Button
+                                size="icon"
+                                variant="ghost"
+                                className="md:size-10"
+                                onClick={handleCancel}
+                              >
+                                <X size={14} />
+                              </Button>
+                            </div>
+                          ) : (
+                            <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                              <Button
+                                size="icon"
+                                variant="ghost"
+                                className="md:size-10"
+                                onClick={() => handleEdit(item)}
+                              >
+                                <Edit size={14} />
+                              </Button>
+                              <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                  <Button
+                                    size="icon"
+                                    variant="ghost"
+                                    className="text-red-400 hover:text-red-500 md:size-10"
                                   >
-                                    Eliminar
-                                  </AlertDialogAction>
-                                </AlertDialogFooter>
-                              </AlertDialogContent>
-                            </AlertDialog>
-                          </div>
-                        )}
-                      </TableCell>
-                    </TableRow>
+                                    <Trash2 size={14} />
+                                  </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle>
+                                      ¿Estás seguro?
+                                    </AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                      Esta acción no se puede deshacer. Se
+                                      eliminará permanentemente este elemento
+                                      del portafolio.
+                                    </AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel>
+                                      Cancelar
+                                    </AlertDialogCancel>
+                                    <AlertDialogAction
+                                      onClick={() => handleDelete(item._id)}
+                                      className="bg-red-600 hover:bg-red-700"
+                                    >
+                                      Eliminar
+                                    </AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
+                            </div>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                      {item.description && (
+                        <TableRow key={`${item._id}-description`}>
+                          <TableCell></TableCell>
+                          <TableCell colSpan={3}>
+                            <p className="text-sm text-muted-foreground/80">
+                              {item.description}
+                            </p>
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </>
                   ))}
                 </TableBody>
               </Table>
@@ -896,11 +908,12 @@ export default function EditarPage() {
                   setNewItemForm({
                     category: "experience",
                     content: "",
+                    description: "",
                     order: 0,
                   });
                 }}
               >
-                <Plus className="w-4 h-4 mr-1" /> Agregar Item
+                <Plus /> Agregar Item
               </Button>
             </CardHeader>
             <CardContent>
