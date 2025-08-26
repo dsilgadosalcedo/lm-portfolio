@@ -1,9 +1,8 @@
-import { Separator } from "./ui/separator";
-
 type ServiceItem = {
   id?: string;
   _id?: string;
   content: string;
+  description?: string;
 };
 
 type ServicesProps = {
@@ -22,14 +21,18 @@ export const Services = ({
   if (!devServices && !businessServices) return null;
 
   return (
-    <section className="bg-card mb-4 lg:mb-8 rounded-[2.25rem] py-5 px-4 md:px-10 relative z-20 flex flex-col gap-4">
+    <>
       {devServices && devServicesTitle && (
-        <Service services={devServices} title={devServicesTitle} />
+        <section className="bg-card mb-4 lg:mb-8 rounded-[2.25rem] py-5 px-4 md:px-10 relative z-20 flex flex-col gap-4">
+          <Service services={devServices} title={devServicesTitle} />
+        </section>
       )}
       {businessServices && businessServicesTitle && (
-        <Service services={businessServices} title={businessServicesTitle} />
+        <section className="bg-card mb-4 lg:mb-8 rounded-[2.25rem] py-5 px-4 md:px-10 relative z-20 flex flex-col gap-4">
+          <Service services={businessServices} title={businessServicesTitle} />
+        </section>
       )}
-    </section>
+    </>
   );
 };
 
@@ -50,24 +53,30 @@ const Service = ({
   return (
     <div>
       <h2 className="text-2xl font-bold mb-2">{title}</h2>
-      <ul className="flex flex-col md:flex-row md:flex-wrap md:justify-center gap-3 sm:gap-4 md:gap-0">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {validServices.map((service, index) => (
-          <li
+          <div
             key={service.id || service._id || `service-${index}`}
-            className="flex items-center"
+            className="group relative"
           >
-            <div className="h-2 w-2 bg-primary/50 border rounded-full mr-2 md:hidden"></div>
-            <div className="md:h-22.5 md:w-42 md:max-w-42 flex items-center justify-center px-4 py-2 rounded-full border md:text-balance text-muted-foreground bg-background/40 text-sm md:text-base md:p-0 md:border-none md:bg-transparent text-start md:text-center">
-              {service.content}
-            </div>
-            {index !== validServices.length - 1 && index !== 3 && (
-              <div className="hidden lg:block h-10 my-auto">
-                <Separator orientation="vertical" className="mx-4" />
+            <div className="bg-card/50 backdrop-blur-sm border rounded-2xl p-6 hover:bg-card/70 transition-all duration-300 hover:shadow-lg">
+              <div className="flex items-start gap-3">
+                <div className="h-2 w-2 bg-primary/50 border rounded-full mt-2 flex-shrink-0"></div>
+                <div className="flex-1">
+                  <h3 className="font-semibold text-foreground mb-2 group-hover:text-primary transition-colors">
+                    {service.content}
+                  </h3>
+                  {service.description && (
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      {service.description}
+                    </p>
+                  )}
+                </div>
               </div>
-            )}
-          </li>
+            </div>
+          </div>
         ))}
-      </ul>
+      </div>
     </div>
   );
 };
