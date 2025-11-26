@@ -4,20 +4,9 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ## Authentication Setup
 
-This project uses [Clerk](https://clerk.com) for authentication. To set up authentication:
+This project uses [Convex Auth](https://labs.convex.dev/auth) for authentication. Authentication is handled directly within your Convex backend using email/password authentication.
 
-1. Create a Clerk account and set up your application
-2. Add the following environment variables to your `.env.local` file:
-
-```bash
-# Clerk Authentication
-NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=your_publishable_key_here
-CLERK_SECRET_KEY=your_secret_key_here
-
-# Clerk URLs
-NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in
-NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL=/editar
-```
+No additional environment variables are required for authentication beyond the Convex setup below.
 
 ## Convex Setup
 
@@ -78,14 +67,6 @@ Make sure to add the following environment variables in your Vercel project sett
 ```bash
 # App URL (SEO)
 NEXT_PUBLIC_APP_URL=https://your-domain.com
-
-# Clerk Authentication
-NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=your_publishable_key_here
-CLERK_SECRET_KEY=your_secret_key_here
-
-# Clerk URLs
-NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in
-NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL=/editar
 
 # Convex Backend
 NEXT_PUBLIC_CONVEX_URL=your_convex_url_here

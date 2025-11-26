@@ -1,3 +1,5 @@
+import type { Id } from "@/convex/_generated/dataModel";
+
 export type PortfolioItem = {
   id: string;
   content: string;
@@ -7,7 +9,7 @@ export type PortfolioItem = {
 };
 
 export type ConvexPortfolioItem = {
-  _id: string;
+  _id: Id<"portfolio_lm">;
   category: string;
   content: string;
   description?: string;
@@ -29,7 +31,7 @@ export function groupByCategory(items: ConvexPortfolioItem[]) {
     const orderValue = item.order;
 
     const entry: PortfolioItem = {
-      id: item._id,
+      id: item._id.toString(),
       content,
       ...(description && { description }),
       ...(image && { image }),

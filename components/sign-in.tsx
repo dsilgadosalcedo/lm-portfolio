@@ -1,15 +1,53 @@
-"use client"
+"use client";
 
-import * as Clerk from "@clerk/elements/common"
-import * as SignIn from "@clerk/elements/sign-in"
-import { AlertCircleIcon, LoaderPinwheelIcon } from "lucide-react"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import { useState } from "react";
+import { useAuthActions } from "@convex-dev/auth/react";
+import { useRouter } from "next/navigation";
+import { AlertCircleIcon, LoaderPinwheelIcon } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 export function SignInPage() {
+  const { signIn } = useAuthActions();
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [formData, setFormData] = useState({
+    username: "",
+    password: "",
+  });
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const result = await signIn("password", {
+        username: formData.username,
+        password: formData.password,
+        flow: "signIn",
+      });
+
+      if (result.signingIn) {
+        // Redirect to admin page after successful sign-in
+        router.push("/editar");
+      } else {
+        setError("Error al iniciar sesión. Por favor, verifica tus credenciales.");
+      }
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Error al iniciar sesión. Por favor, verifica tus credenciales."
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <main className="flex flex-col items-center justify-center min-h-screen">
       <div className="bg-accent relative mx-auto w-96 rounded-[2.4rem] p-2">
@@ -17,79 +55,74 @@ export function SignInPage() {
           <h1 className="mb-10 text-center text-xl font-bold">Iniciar sesión</h1>
 
           <div className="flex items-center justify-center">
-            <SignIn.Root>
-              <Clerk.Loading>
-                {(isGlobalLoading: boolean) => (
-                  <SignIn.Step name="start" className="w-full space-y-5">
-                    <Clerk.Field name="identifier">
-                      <Clerk.Label asChild>
-                        <Label className="mb-2">Usuario</Label>
-                      </Clerk.Label>
-                      <Clerk.Input
-                        placeholder="mi-usuario"
-                        type="identifier"
-                        asChild
-                        disabled={isGlobalLoading}
-                        required
-                        value="im-linda"
-                      >
-                        <Input />
-                      </Clerk.Input>
-
-                      <Clerk.FieldError className="absolute -bottom-20 left-1/2 flex w-fit -translate-x-1/2">
-                        {({ message }) => (
-                          <Alert variant="destructive">
-                            <AlertCircleIcon />
-                            <AlertDescription className="whitespace-nowrap">
-                              {message}
-                            </AlertDescription>
-                          </Alert>
-                        )}
-                      </Clerk.FieldError>
-                    </Clerk.Field>
-
-                    <Clerk.Field name="password">
-                      <Clerk.Label asChild>
-                        <Label className="mb-2">Contraseña</Label>
-                      </Clerk.Label>
-                      <Clerk.Input
-                        type="password"
-                        autoComplete="password"
-                        placeholder="●●●●●●●●"
-                        asChild
-                        disabled={isGlobalLoading}
-                        required
-                      >
-                        <Input />
-                      </Clerk.Input>
-                      <Clerk.FieldError className="absolute -bottom-20 left-1/2 flex w-fit -translate-x-1/2">
-                        {({ message }) => (
-                          <Alert variant="destructive">
-                            <AlertCircleIcon />
-                            <AlertDescription className="whitespace-nowrap">
-                              {message}
-                            </AlertDescription>
-                          </Alert>
-                        )}
-                      </Clerk.FieldError>
-                    </Clerk.Field>
-
-                    <SignIn.Action submit asChild disabled={isGlobalLoading}>
-                      <Button disabled={isGlobalLoading} className="w-full">
-                        {isGlobalLoading ? (
-                          <LoaderPinwheelIcon className="animate-spin" />
-                        ) : (
-                          "Iniciar sesión"
-                        )}
-                      </Button>
-                    </SignIn.Action>
-                  </SignIn.Step>
+            <form onSubmit={handleSubmit} className="w-full space-y-5">
+              <div>
+                <Label htmlFor="username" className="mb-2">
+                  Usuario
+                </Label>
+                <Input
+                  id="username"
+                  type="text"
+                  placeholder="mi-usuario"
+                  value={formData.username}
+                  onChange={(e) =>
+                    setFormData({ ...formData, username: e.target.value })
+                  }
+                  disabled={isLoading}
+                  required
+                  autoComplete="username"
+                />
+                {error && (
+                  <Alert variant="destructive" className="mt-2">
+                    <AlertCircleIcon />
+                    <AlertDescription className="whitespace-nowrap">
+                      {error}
+                    </AlertDescription>
+                  </Alert>
                 )}
-              </Clerk.Loading>
-            </SignIn.Root>
+              </div>
+
+              <div>
+                <Label htmlFor="password" className="mb-2">
+                  Contraseña
+                </Label>
+                <Input
+                  id="password"
+                  type="password"
+                  autoComplete="password"
+                  placeholder="●●●●●●●●"
+                  value={formData.password}
+                  onChange={(e) =>
+                    setFormData({ ...formData, password: e.target.value })
+                  }
+                  disabled={isLoading}
+                  required
+                />
+                {error && (
+                  <Alert variant="destructive" className="mt-2">
+                    <AlertCircleIcon />
+                    <AlertDescription className="whitespace-nowrap">
+                      {error}
+                    </AlertDescription>
+                  </Alert>
+                )}
+              </div>
+
+              <Button
+                type="submit"
+                disabled={isLoading}
+                className="w-full"
+              >
+                {isLoading ? (
+                  <LoaderPinwheelIcon className="animate-spin" />
+                ) : (
+                  "Iniciar sesión"
+                )}
+              </Button>
+            </form>
           </div>
         </div>
       </div>
     </main>
-  )
+  );
 }

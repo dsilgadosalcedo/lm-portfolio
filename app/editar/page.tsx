@@ -39,7 +39,8 @@ import { ConvexPortfolioItem } from "@/lib/convex.mapper";
 import type { Id } from "@/convex/_generated/dataModel";
 import { PhotoUpload } from "@/components/photo-upload";
 import Link from "next/link";
-import { useUser, SignOutButton, SignedIn } from "@clerk/nextjs";
+import { useAuthActions } from "@convex-dev/auth/react";
+import { useRouter } from "next/navigation";
 import {
   Table,
   TableBody,
@@ -102,7 +103,9 @@ const getCategoryIcon = (category: string) => {
 };
 
 export default function EditarPage() {
-  const { user } = useUser();
+  const { signOut } = useAuthActions();
+  const router = useRouter();
+  const user = useQuery(api.queries.getCurrentUser);
   const items = useQuery(api.queries.getAllPortfolioItems);
   const updateItem = useMutation(api.mutations.updatePortfolioItem);
   const deleteItem = useMutation(api.mutations.deletePortfolioItem);
@@ -331,17 +334,19 @@ export default function EditarPage() {
               setServiceEditItemId(null);
             }}
           />
-          <SignedIn>
-            <SignOutButton>
-              <Button
-                variant="outline"
-                size="icon"
-                className="md:size-10 hover:bg-transparent"
-              >
-                <LogOut className="w-4 h-4" />
-              </Button>
-            </SignOutButton>
-          </SignedIn>
+          {user && (
+            <Button
+              variant="outline"
+              size="icon"
+              className="md:size-10 hover:bg-transparent"
+              onClick={async () => {
+                await signOut();
+                router.push("/sign-in");
+              }}
+            >
+              <LogOut className="w-4 h-4" />
+            </Button>
+          )}
         </div>
       </div>
 
@@ -437,7 +442,7 @@ export default function EditarPage() {
                               size="icon"
                               variant="ghost"
                               className="md:size-10"
-                              onClick={() => handleSave(item._id)}
+                              onClick={() => handleSave(item._id as Id<"portfolio_lm">)}
                             >
                               <Save size={14} />
                             </Button>
@@ -456,7 +461,7 @@ export default function EditarPage() {
                               size="icon"
                               variant="ghost"
                               className="md:size-10"
-                              onClick={() => handleEdit(item)}
+                              onClick={() => handleEdit(item as ConvexPortfolioItem)}
                             >
                               <Edit size={14} />
                             </Button>
@@ -486,7 +491,7 @@ export default function EditarPage() {
                                     Cancelar
                                   </AlertDialogCancel>
                                   <AlertDialogAction
-                                    onClick={() => handleDelete(item._id)}
+                                    onClick={() => handleDelete(item._id as Id<"portfolio_lm">)}
                                     className="bg-red-600 hover:bg-red-700"
                                   >
                                     Eliminar
@@ -616,7 +621,7 @@ export default function EditarPage() {
                                 size="icon"
                                 variant="ghost"
                                 className="md:size-10"
-                                onClick={() => handleSave(item._id)}
+                                onClick={() => handleSave(item._id as Id<"portfolio_lm">)}
                               >
                                 <Save size={14} />
                               </Button>
@@ -635,7 +640,7 @@ export default function EditarPage() {
                                 size="icon"
                                 variant="ghost"
                                 className="md:size-10"
-                                onClick={() => handleEdit(item)}
+                                onClick={() => handleEdit(item as ConvexPortfolioItem)}
                               >
                                 <Edit size={14} />
                               </Button>
@@ -665,7 +670,7 @@ export default function EditarPage() {
                                       Cancelar
                                     </AlertDialogCancel>
                                     <AlertDialogAction
-                                      onClick={() => handleDelete(item._id)}
+                                      onClick={() => handleDelete(item._id as Id<"portfolio_lm">)}
                                       className="bg-red-600 hover:bg-red-700"
                                     >
                                       Eliminar
@@ -806,7 +811,7 @@ export default function EditarPage() {
                                 size="icon"
                                 variant="ghost"
                                 className="md:size-10"
-                                onClick={() => handleSave(item._id)}
+                                onClick={() => handleSave(item._id as Id<"portfolio_lm">)}
                               >
                                 <Save size={14} />
                               </Button>
@@ -825,7 +830,7 @@ export default function EditarPage() {
                                 size="icon"
                                 variant="ghost"
                                 className="md:size-10"
-                                onClick={() => handleEdit(item)}
+                                onClick={() => handleEdit(item as ConvexPortfolioItem)}
                               >
                                 <Edit size={14} />
                               </Button>
@@ -855,7 +860,7 @@ export default function EditarPage() {
                                       Cancelar
                                     </AlertDialogCancel>
                                     <AlertDialogAction
-                                      onClick={() => handleDelete(item._id)}
+                                      onClick={() => handleDelete(item._id as Id<"portfolio_lm">)}
                                       className="bg-red-600 hover:bg-red-700"
                                     >
                                       Eliminar
@@ -991,7 +996,7 @@ export default function EditarPage() {
                               size="icon"
                               variant="ghost"
                               className="md:size-10"
-                              onClick={() => handleSave(item._id)}
+                              onClick={() => handleSave(item._id as Id<"portfolio_lm">)}
                             >
                               <Save size={14} />
                             </Button>
@@ -1010,7 +1015,7 @@ export default function EditarPage() {
                               size="icon"
                               variant="ghost"
                               className="md:size-10"
-                              onClick={() => handleEdit(item)}
+                              onClick={() => handleEdit(item as ConvexPortfolioItem)}
                             >
                               <Edit size={14} />
                             </Button>
@@ -1040,7 +1045,7 @@ export default function EditarPage() {
                                     Cancelar
                                   </AlertDialogCancel>
                                   <AlertDialogAction
-                                    onClick={() => handleDelete(item._id)}
+                                    onClick={() => handleDelete(item._id as Id<"portfolio_lm">)}
                                     className="bg-red-600 hover:bg-red-700"
                                   >
                                     Eliminar

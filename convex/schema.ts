@@ -1,7 +1,19 @@
 import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
+import { authTables } from "@convex-dev/auth/server";
 
 export default defineSchema({
+  ...authTables,
+
+  users: defineTable({
+    username: v.string(),
+    firstName: v.optional(v.string()),
+    lastName: v.optional(v.string()),
+    email: v.optional(v.string()),
+  })
+    .index("by_username", ["username"])
+    .index("email", ["email"]),
+
   portfolio_lm: defineTable({
     category: v.string(), // linkedin, description, email, profile-photo, whatsapp, experience, service-dev-title, service-dev-item, service-business-title, service-business-item
     content: v.string(),
@@ -12,12 +24,4 @@ export default defineSchema({
     createdAt: v.number(),
     updatedAt: v.number(),
   }).index("by_category", ["category"]),
-
-  // Admin users for authentication
-  users: defineTable({
-    email: v.string(),
-    name: v.string(),
-    role: v.string(), // admin, editor
-    createdAt: v.number(),
-  }).index("by_email", ["email"]),
 });
