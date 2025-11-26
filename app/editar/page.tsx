@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Fragment } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Button } from "@/components/ui/button";
@@ -88,6 +88,8 @@ const getCategoryColor = (category: string) => {
     "service-dev-item": "bg-cyan-100/20 border-cyan-200/50",
     "service-business-title": "bg-amber-100/20 border-amber-200/50",
     "service-business-item": "bg-lime-100/20 border-lime-200/50",
+    "hero-title": "bg-violet-100/20 border-violet-200/50",
+    "hero-title-highlighted": "bg-fuchsia-100/20 border-fuchsia-200/50",
   };
 
   return colorMap[category] || "bg-gray-100/20 border-gray-200/50";
@@ -109,6 +111,8 @@ const getCategoryIcon = (category: string) => {
     "service-dev-item": Code,
     "service-business-title": Building2,
     "service-business-item": Building2,
+    "hero-title": FileText,
+    "hero-title-highlighted": FileText,
   };
 
   return iconMap[category] || FileText;
@@ -148,7 +152,14 @@ export default function EditarPage() {
   // Filter items by category groups
   const contactItems = items
     ? items.filter((item) =>
-        ["description", "email", "linkedin", "whatsapp"].includes(item.category)
+        [
+          "description",
+          "email",
+          "linkedin",
+          "whatsapp",
+          "hero-title",
+          "hero-title-highlighted",
+        ].includes(item.category)
       )
     : [];
 
@@ -548,9 +559,8 @@ export default function EditarPage() {
                 </TableHeader>
                 <TableBody>
                   {serviceDevItems.map((item) => (
-                    <>
+                    <Fragment key={item._id}>
                       <TableRow
-                        key={item._id}
                         className={`group ${
                           item.description ? "border-b-0" : ""
                         }`}
@@ -694,7 +704,7 @@ export default function EditarPage() {
                           </TableCell>
                         </TableRow>
                       )}
-                    </>
+                    </Fragment>
                   ))}
                 </TableBody>
               </Table>
@@ -739,9 +749,8 @@ export default function EditarPage() {
                 </TableHeader>
                 <TableBody>
                   {serviceBusinessItems.map((item) => (
-                    <>
+                    <Fragment key={item._id}>
                       <TableRow
-                        key={item._id}
                         className={`group ${
                           item.description ? "border-b-0" : ""
                         }`}
@@ -885,7 +894,7 @@ export default function EditarPage() {
                           </TableCell>
                         </TableRow>
                       )}
-                    </>
+                    </Fragment>
                   ))}
                 </TableBody>
               </Table>

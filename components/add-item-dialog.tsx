@@ -84,6 +84,12 @@ export function AddItemDialog({
                       <SelectItem value="description">Descripción</SelectItem>
                       <SelectItem value="email">Email</SelectItem>
                       <SelectItem value="whatsapp">WhatsApp</SelectItem>
+                      <SelectItem value="hero-title">
+                        Título Hero (Normal)
+                      </SelectItem>
+                      <SelectItem value="hero-title-highlighted">
+                        Título Hero (Resaltado)
+                      </SelectItem>
                     </>
                   )}
                   {selectedTable === "service-dev" && (

@@ -6,6 +6,8 @@ type HeroProps = {
   email: string | undefined;
   photoUrl: string | undefined;
   whatsappNumber: string | undefined;
+  title: string | undefined;
+  titleHighlighted: string | undefined;
 };
 
 export const Hero = ({
@@ -13,13 +15,20 @@ export const Hero = ({
   email,
   photoUrl,
   whatsappNumber,
+  title,
+  titleHighlighted,
 }: HeroProps) => {
   return (
     <section className="relative z-20 flex flex-col-reverse md:flex-row md:items-center md:justify-between">
       <div className="text-center md:text-left">
-        <h2 className="text-3xl sm:text-4xl md:text-[4rem] font-bold mb-2 md:mb-4">
-          Abogada <span className="text-primary">Tech</span>
-        </h2>
+        {(title || titleHighlighted) && (
+          <h2 className="text-3xl sm:text-4xl md:text-[4rem] font-bold mb-2 md:mb-4">
+            {title && <>{title} </>}
+            {titleHighlighted && (
+              <span className="text-primary">{titleHighlighted}</span>
+            )}
+          </h2>
+        )}
         {description && (
           <p className="text-base md:text-xl mb-6 md:mb-8 text-muted-foreground whitespace-normal max-w-[420px] mx-auto md:mx-0">
             {description}
