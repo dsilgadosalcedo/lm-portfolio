@@ -34,6 +34,8 @@ export default function HomeClient() {
             email={grouped.email?.[0]?.content}
             photoUrl={photoUrl || undefined}
             whatsappNumber={grouped.whatsapp?.[0]?.content}
+            title={grouped["hero-title"]?.[0]?.content}
+            titleHighlighted={grouped["hero-title-highlighted"]?.[0]?.content}
           />
 
           <Experience experience={grouped.experience} />
