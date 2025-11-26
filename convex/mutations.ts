@@ -73,18 +73,3 @@ export const deleteFile = mutation({
     await ctx.storage.delete(args.storageId);
   },
 });
-
-// Create user
-export const createUser = mutation({
-  args: {
-    email: v.string(),
-    name: v.string(),
-    role: v.string(),
-  },
-  handler: async (ctx, args) => {
-    return await ctx.db.insert("users", {
-      ...args,
-      createdAt: Date.now(),
-    });
-  },
-});

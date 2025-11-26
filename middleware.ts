@@ -1,6 +1,13 @@
-import { clerkMiddleware } from '@clerk/nextjs/server';
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 
-export default clerkMiddleware();
+// Convex Auth doesn't require middleware for authentication
+// Authentication is handled client-side and server-side in Convex functions
+export function middleware(request: NextRequest) {
+  // Middleware can be used for other purposes if needed
+  // For now, we just pass through
+  return NextResponse.next();
+}
 
 export const config = {
   matcher: [

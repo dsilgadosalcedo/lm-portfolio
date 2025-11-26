@@ -62,13 +62,66 @@ export const getFileUrl = query({
   },
 });
 
-// Get user by email
-export const getUserByEmail = query({
-  args: { email: v.string() },
-  handler: async (ctx, args) => {
-    return await ctx.db
+// Get current authenticated user
+export const getCurrentUser = query({
+  args: {},
+  handler: async (ctx) => {
+    const identity = await ctx.auth.getUserIdentity();
+
+    if (!identity) {
+      return null;
+    }
+
+    // The identity.subject contains userId|session format
+    // The first part is the userId (returned from createOrUpdateUser callback in convex/auth.ts)
+    const subjectParts = identity.subject?.split("|") || [];
+    const userId = subjectParts[0];
+
+    if (!userId) {
+      return null;
+    }
+
+    // The userId from subject is the _id of the user in the users table
+    // (returned from createOrUpdateUser callback)
+    try {
+      const user = await ctx.db.get(userId as any);
+      if (user) {
+        const userData = user as any;
+        const userUsername = userData.username || "";
+        return {
+          _id: userData._id,
+          username: userUsername,
+          name:
+            userData.firstName && userData.lastName
+              ? `${userData.firstName} ${userData.lastName}`.trim()
+              : userData.firstName || userUsername || "User",
+          firstName: userData.firstName || userUsername || "User",
+        };
+      }
+    } catch (e) {
+      // userId is not a valid Convex ID, fall through to username lookup
+    }
+
+    // Fallback: If userId is not a valid ID, try to find user by username
+    // This shouldn't happen if createOrUpdateUser returns the correct ID, but handle it anyway
+    const authUser = await ctx.db
       .query("users")
-      .withIndex("by_email", (q) => q.eq("email", args.email))
+      .withIndex("by_username", (q) => q.eq("username", userId))
       .first();
+
+    if (authUser) {
+      const userUsername = authUser.username || "";
+      return {
+        _id: authUser._id,
+        username: userUsername,
+        name:
+          authUser.firstName && authUser.lastName
+            ? `${authUser.firstName} ${authUser.lastName}`.trim()
+            : authUser.firstName || userUsername || "User",
+        firstName: authUser.firstName || userUsername || "User",
+      };
+    }
+
+    return null;
   },
-}); 
+});

@@ -19,7 +19,7 @@ export const Hero = ({
   titleHighlighted,
 }: HeroProps) => {
   return (
-    <section className="relative z-20 flex flex-col-reverse md:flex-row md:items-center md:justify-between">
+    <section className="relative z-20 flex flex-col-reverse md:flex-row md:items-center md:justify-between animate-fade-in-up animate-delay-100">
       <div className="text-center md:text-left">
         {(title || titleHighlighted) && (
           <h2 className="text-3xl sm:text-4xl md:text-[4rem] font-bold mb-2 md:mb-4">
