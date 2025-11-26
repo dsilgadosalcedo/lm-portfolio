@@ -18,6 +18,8 @@ export const PortfolioSkeleton = () => {
             email={"example@example.com"}
             photoUrl={undefined}
             whatsappNumber={"1234567890"}
+            title={undefined}
+            titleHighlighted={undefined}
           />
 
           <Experience experience={[]} />
