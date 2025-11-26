@@ -8,7 +8,7 @@ export const Header = ({
   linkedinUsername: string | undefined;
 }) => {
   return (
-    <header className="flex items-center justify-between w-full my-2 md:my-6 px-4 md:px-20">
+    <header className="flex items-center justify-between w-full my-2 md:my-6 px-4 md:px-20 animate-fade-in-up">
       <h1 className="text-xl font-base text-primary">Linda Armesto</h1>
 
       {linkedinUsername && (

@@ -23,7 +23,8 @@ export const Experience = ({
       {validExperience.map((item, index) => (
         <div
           key={item.id || item._id || `experience-${index}`}
-          className="flex items-center gap-2 text-muted-foreground text-base"
+          className="flex items-center gap-2 text-muted-foreground text-base animate-fade-in-up"
+          style={{ animationDelay: `${0.2 + index * 0.1}s` }}
         >
           <Award className="w-5 h-5 text-primary" />
           <span>{item.content}</span>

@@ -28,7 +28,7 @@ export const Services = ({
     <>
       {devServices && devServicesTitle && (
         <section
-          className={`bg-card mb-4 rounded-[2.25rem] py-5 pb-8 px-4 md:px-10 relative z-20 flex flex-col gap-4 ${
+          className={`bg-card mb-4 rounded-[2.25rem] py-5 pb-8 px-4 md:px-10 relative z-20 flex flex-col gap-4 animate-fade-in-up animate-delay-300 ${
             !businessServices && "lg:mb-8 "
           }`}
         >
@@ -36,7 +36,7 @@ export const Services = ({
         </section>
       )}
       {businessServices && businessServicesTitle && (
-        <section className="bg-card mb-4 lg:mb-8 rounded-[2.25rem] pb-8 py-5 px-4 md:px-10 relative z-20 flex flex-col gap-4">
+        <section className="bg-card mb-4 lg:mb-8 rounded-[2.25rem] pb-8 py-5 px-4 md:px-10 relative z-20 flex flex-col gap-4 animate-fade-in-up animate-delay-400">
           <Service services={businessServices} title={businessServicesTitle} />
         </section>
       )}
@@ -82,7 +82,7 @@ const Service = ({
           const hasDescription = !!service.description;
 
           return (
-            <div key={serviceId} className="group relative">
+            <div key={serviceId} className="group relative animate-fade-in-up" style={{ animationDelay: `${0.5 + index * 0.1}s` }}>
               <div className="bg-card/50 backdrop-blur-sm border rounded-2xl p-6 hover:bg-card/70 transition-all duration-300 hover:shadow-lg">
                 <div className="flex items-start">
                   <div className="flex-1">
