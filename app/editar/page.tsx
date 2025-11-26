@@ -19,15 +19,6 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import {
   Edit,
   Save,
   X,
@@ -50,13 +41,6 @@ import { PhotoUpload } from "@/components/photo-upload";
 import Link from "next/link";
 import { useUser, SignOutButton, SignedIn } from "@clerk/nextjs";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
   Table,
   TableBody,
   TableCell,
@@ -64,7 +48,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Label } from "@/components/ui/label";
 import { AddItemDialog } from "@/components/add-item-dialog";
 import { EditServiceDialog } from "@/components/edit-service-dialog";
 
